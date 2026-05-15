@@ -145,4 +145,14 @@ export interface GameState {
   endingType?: EndingType;
   agentTrace?: import('./ai').AgentTrace;
   emergencyActionsCompleted: string[];
+
+  // ── Chat system ───────────────────────────────────────────────────────────
+  contacts: import('./chat').Contact[];
+  activeContactId: string | null;
+  chatHistories: Record<string, import('./chat').ChatMessage[]>;
+  worldState: import('./chat').WorldState;
+  activeView: import('./chat').ActiveView;
+  browserState: import('./chat').BrowserState | null;
+  phoneState: import('./chat').PhoneState;
+  notifications: import('./chat').SystemNotification[];
 }

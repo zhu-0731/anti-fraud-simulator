@@ -9,12 +9,11 @@ interface MobileFrameProps {
 export default function MobileFrame({ children }: MobileFrameProps) {
   return (
     <div
-      className="relative flex flex-col bg-[#07111F] overflow-hidden"
+      className="relative flex h-[100svh] min-h-0 flex-col bg-[#07111F] overflow-hidden"
       style={{
         width: '100%',
         maxWidth: 430,
         minWidth: 320,
-        minHeight: '100svh',
         borderRadius: 0,
       }}
     >

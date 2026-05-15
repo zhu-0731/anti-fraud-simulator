@@ -1,56 +1,115 @@
 # ARCHITECTURE.md — 架构设计文档
 
-## 前后端分层架构
+## 前后端分层架构（v2.0）
 
 ```
-┌─────────────────────────────────────────┐
-│              浏览器 (Client)              │
-│                                         │
-│  React Components (只负责渲染和事件分发) │
-│  Zustand Store (轻量客户端状态)          │
-│  apiClient.ts (HTTP请求封装)             │
-│  localStorage (会话ID持久化)             │
-└─────────────────┬───────────────────────┘
-                  │ HTTP (fetch)
-┌─────────────────▼───────────────────────┐
-│         Next.js Route Handlers           │
-│   (src/app/api/**/route.ts)             │
-│                                         │
-│   POST /api/session/start               │
-│   GET  /api/game/state                  │
-│   POST /api/game/action                 │
-│   POST /api/ai/generate-event           │
-│   POST /api/report/generate             │
-└─────────────────┬───────────────────────┘
-                  │ 函数调用
-┌─────────────────▼───────────────────────┐
-│         Domain Services Layer            │
-│   (src/domain/services/)               │
-│                                         │
-│   GameEngine           ← 核心游戏引擎   │
-│   ScoringService       ← 评分计算       │
-│   EndingService        ← 结局判断       │
-│   ReportService        ← 报告生成       │
-│   SafetyFilterService  ← 安全过滤       │
-│   EventSelectionService ← 事件流转      │
-└────────────┬──────────────┬─────────────┘
-             │              │
-┌────────────▼───┐  ┌───────▼─────────────┐
-│  Repositories  │  │    AI Layer          │
-│                │  │  (src/domain/ai/)    │
-│  GameSession   │  │                      │
-│  Repository    │  │  AIEventProvider     │
-│  (in-memory)   │  │  MockAIEventProvider │
-│                │  │  LangGraphProvider   │
-│  Chapter       │  │  AgentOrchestrator   │
-│  Repository    │  │                      │
-│  (static data) │  └──────────────────────┘
-└────────────────┘
+┌──────────────────────────────────────────────────┐
+│                   浏览器 (Client)                  │
+│                                                   │
+│  React Screens: ChatListScreen / ChatWindow /     │
+│    BrowserView / OfficialSiteView / PhoneView /   │
+│    EvidenceView / EmergencyScreen / ReportScreen  │
+│  BottomNavigation + StatusBar                     │
+│  Zustand Store (含sendMessage/openContact等)       │
+│  apiClient.ts (HTTP封装)                          │
+│  localStorage (仅存sessionId)                     │
+└────────────────────────┬─────────────────────────┘
+                         │ HTTP (fetch)
+┌────────────────────────▼─────────────────────────┐
+│              Next.js Route Handlers               │
+│                                                   │
+│   POST /api/session/start    ← 初始化聊天系统      │
+│   POST /api/chat/send        ← 发送消息            │
+│   POST /api/chat/open-contact ← 打开联系人         │
+│   POST /api/narrative/tick   ← 后台叙事推进        │
+│   GET  /api/game/state       ← 查询状态            │
+│   POST /api/game/action      ← 旧事件卡行动        │
+│   POST /api/ai/generate-event                     │
+│   POST /api/report/generate                       │
+└────────────────────────┬─────────────────────────┘
+                         │ 函数调用
+┌────────────────────────▼─────────────────────────┐
+│            Chat Domain Layer (新)                  │
+│   (src/domain/chat/ + src/domain/narrative/)      │
+│                                                   │
+│   IntentParser      ← 文本→PlayerIntent           │
+│   ChatService       ← 聊天消息编排                │
+│   NarrativeDirector ← WorldState数值驱动阶段       │
+│   WorldState        ← createInitial/patch         │
+│   DelayedConsequenceService ← 延迟后果模板         │
+└────────────────┬──────────────────────────────────┘
+                 │
+┌────────────────▼──────────────────────────────────┐
+│              Agent Layer (新)                      │
+│   (src/domain/agents/)                            │
+│                                                   │
+│   IBaseAgent interface / MockAgent abstract       │
+│   MomAgent / CounselorAgent / SeniorAgent         │
+│   GroupAgent / FakeAdmissionAgent (教育模拟)       │
+│   OfficialSiteAgent / AntiFraudAgent              │
+│   AgentRegistry (contactId → IBaseAgent)          │
+└────────────────┬──────────────────────────────────┘
+                 │ → SafetyFilterService（强制门控）
+┌────────────────▼──────────────────────────────────┐
+│            Legacy Domain Services (v1)             │
+│   GameEngine / ScoringService / EndingService     │
+│   ReportService (新增因果链) / SafetyFilterService │
+│   EventSelectionService                           │
+└────────────────┬──────────────────────────────────┘
+                 │
+┌────────────────▼──────────────────────────────────┐
+│              Repositories                          │
+│   GameSessionRepository (in-memory Map)           │
+│   ChapterRepository (static import)               │
+└───────────────────────────────────────────────────┘
 ```
 
 ---
 
-## API设计
+## 聊天系统核心流程（v2.0）
+
+```
+玩家输入文本
+   ↓
+IntentParser.parseIntent(text)
+   → PlayerIntent (14种意图)
+   ↓
+ChatService.sendMessage(state, contactId, text)
+   ├─ 构建playerMsg，添加到chatHistories
+   ├─ getAgent(contactId).generateResponse(input)
+   │    → AgentResponseMessage[]（含延迟后果）
+   ├─ SafetyFilterService.removeRealLinks(content)   ← 强制安全门控
+   ├─ NarrativeDirector.tick(worldState, intent, contactId)
+   │    → updatedWorldState, newNotifications
+   │    → triggerEmergency, triggerReport
+   └─ 更新GameState，返回SendMessageResult
+```
+
+### WorldState数值字段（0-100）
+| 字段 | 含义 | 上升时 |
+|---|---|---|
+| trustFamilyChain | 家庭渠道信任链 | 通过mom转发的信息行动 |
+| trustPeerChain | 同伴渠道信任链 | 相信senior/group链接 |
+| authorityPressure | 权威压力感受 | 与fake_admission交互 |
+| deadlinePressure | 截止时间压力 | 忽视消息、group催促 |
+| officialPathAwareness | 官方路径认知 | 联系counselor/官网/拨官方电话 |
+| suspiciousLinkExposure | 可疑链接接触 | 点开非官方链接 |
+| submittedInfoLevel | 已提交信息量 | submit_info意图触发时 |
+
+### NarrativeStage流转
+```
+normal_context
+  → trust_building (trustFamily/Peer > 5)
+  → fake_entry_seeded (exposure > 15)
+  → authority_pressure (exposure > 25)
+  → submission_pressure (authorityPressure/deadlinePressure > 30)
+  → leak_or_escape (submitted > 20)
+  → recovery (submitted > 0 AND awareness > 50)
+```
+
+---
+
+## API设计（v2.0）
 
 所有API遵循REST风格，使用JSON格式。
 

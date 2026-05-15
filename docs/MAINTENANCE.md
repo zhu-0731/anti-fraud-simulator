@@ -1,6 +1,6 @@
 # MAINTENANCE.md — 《确认之前》维护文档
 
-## 当前版本：MVP v1.0
+## 当前版本：MVP v2.0（聊天系统重构）
 
 ---
 
@@ -20,39 +20,46 @@ npm run start     # 启动生产服务
 
 | 模块 | 状态 | 说明 |
 |------|------|------|
-| domain/types | ✅ | game.ts / ai.ts / report.ts |
+| domain/types/chat.ts | ✅ | Contact, ChatMessage, WorldState, PlayerIntent (v2) |
+| domain/types/game.ts | ✅ | GameState含聊天系统字段 (v2) |
+| domain/types/report.ts | ✅ | 含因果链字段 (v2) |
+| domain/chat/IntentParser.ts | ✅ | 14意图，关键词匹配，接口预留LLM替换 |
+| domain/chat/ChatService.ts | ✅ | 意图→Agent→安全过滤→叙事→状态更新 |
+| domain/narrative/WorldState.ts | ✅ | createInitialWorldState + patchWorldState |
+| domain/narrative/NarrativeDirector.ts | ✅ | WorldState数值驱动叙事阶段流转 |
+| domain/narrative/DelayedConsequenceService.ts | ✅ | 延迟后果模板 |
+| domain/agents/BaseAgent.ts | ✅ | IBaseAgent接口，MockAgent抽象类 |
+| domain/agents/AgentRegistry.ts | ✅ | getAgent(contactId) + getAllAgents() |
+| MomAgent | ✅ | 转发可疑链接，天真型 |
+| CounselorAgent | ✅ | 可靠，始终指向官方渠道 |
+| SeniorAgent | ✅ | 分享经历+可疑资源链接 |
+| GroupAgent | ✅ | 多成员混合信息 |
+| FakeAdmissionAgent | ✅ | 权威压力+截止压力（教育模拟，受模板约束）|
+| OfficialSiteAgent | ✅ | 官方核验信息 |
+| AntiFraudAgent | ✅ | 应急指引，96110 |
+| API /api/chat/send | ✅ | 聊天消息发送 |
+| API /api/chat/open-contact | ✅ | 打开联系人，清除未读 |
+| API /api/narrative/tick | ✅ | 后台叙事推进 |
+| GameEngine.startSession | ✅ | 初始化7个联系人+WorldState+聊天记录 |
+| ReportService | ✅ | 含因果链、转折点、信任链分析 |
+| gameStore | ✅ | sendMessage/openContact/setActiveView/narrativeTick |
+| apiClient | ✅ | sendMessage/openContact/narrativeTick |
+| ChatListScreen | ✅ | 联系人列表含未读徽标 |
+| ChatWindow | ✅ | 单联系人聊天+自由文本输入+快捷建议 |
+| BrowserView | ✅ | 模拟浏览器，倒计时，禁用表单，免责提示 |
+| OfficialSiteView | ✅ | 官方核验入口，快捷操作 |
+| PhoneView | ✅ | 电话模拟，官方vs可疑号码 |
+| EvidenceView | ✅ | 证据板，使用说明 |
+| BottomNavigation | ✅ | 5标签导航栏 |
+| StatusBar | ✅ | 模糊状态标签（非原始数值）|
+| DesktopLayout | ✅ | 调试面板默认隐藏，?debug=1可见 |
+| page.tsx | ✅ | PlayingView含视图路由 |
 | data/chapter01 | ✅ | 12个事件节点，每个4+行动 |
-| data/playerProfiles | ✅ | 大四学生陈莉档案 |
-| data/eventVariants | ✅ | 3类AI事件变体 |
-| repositories | ✅ | 内存Mock实现，接口已设计好 |
-| GameEngine | ✅ | startSession/handleAction/applyActionEffects |
 | ScoringService | ✅ | 5维度评分，总分100 |
 | EndingService | ✅ | 5种结局判断 |
-| ReportService | ✅ | 复盘报告生成 |
 | SafetyFilterService | ✅ | 真实链接/支付信息过滤 |
-| EventSelectionService | ✅ | 规则驱动事件流转 |
-| AIEventProvider接口 | ✅ | 标准接口定义 |
 | MockAIEventProvider | ✅ | 基于eventVariants的mock实现 |
 | LangGraphEventProvider | ✅ | Stub + 完整TODO注释 |
-| AgentOrchestrator | ✅ | 多Provider路由 + 安全过滤 |
-| AI Prompts模板 | ✅ | eventGenerationPrompt + reportPrompt |
-| API Routes (5个) | ✅ | session/start, game/action, game/state, ai/generate-event, report/generate |
-| Zustand Store | ✅ | 含localStorage持久化 |
-| apiClient | ✅ | 类型安全的fetch封装 |
-| StartScreen | ✅ | 开始页 |
-| ProfileScreen | ✅ | 角色档案页 |
-| GameScreen | ✅ | 主游戏界面 |
-| EmergencyScreen | ✅ | 应急处置界面 |
-| ReportScreen | ✅ | 复盘报告界面 |
-| StatusBar | ✅ | 风险值/焦虑值/阶段 |
-| MessageBubble | ✅ | 多渠道消息气泡 |
-| ActionPanel | ✅ | 行动按钮面板 |
-| EvidencePanel | ✅ | 证据链面板 |
-| BrowserSimulation | ✅ | 模拟浏览器（含防护提示）|
-| ScoreCard | ✅ | 评分卡片 |
-| TimelineReview | ✅ | 行动时间轴 |
-| MistakeList | ✅ | 错误操作列表 |
-| AdvicePanel | ✅ | 现实建议 |
 | docs (4个文档) | ✅ | MAINTENANCE/ACCEPTANCE/ARCHITECTURE/AI_EXTENSION |
 
 ---

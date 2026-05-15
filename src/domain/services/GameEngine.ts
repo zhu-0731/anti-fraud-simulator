@@ -1,4 +1,5 @@
 import type { GameState, EventCard, PlayerAction, Evidence, ActionRecord, Message } from '@/domain/types/game';
+import type { Contact, ChatMessage } from '@/domain/types/chat';
 import { gameSessionRepository } from '@/domain/repositories/GameSessionRepository';
 import { chapterRepository } from '@/domain/repositories/ChapterRepository';
 import { eventSelectionService } from './EventSelectionService';
@@ -6,6 +7,8 @@ import { endingService } from './EndingService';
 import { defaultPlayerProfile } from '@/data/playerProfiles';
 import { generateId } from '@/lib/id';
 import { clamp } from '@/lib/clamp';
+import { createInitialWorldState } from '@/domain/narrative/WorldState';
+import { getAllAgents } from '@/domain/agents/AgentRegistry';
 
 export interface StartSessionResult {
   sessionId: string;
@@ -26,6 +29,36 @@ export class GameEngine {
     if (!firstEvent) throw new Error(`Chapter not found: ${chapterId}`);
 
     const now = new Date().toISOString();
+    // Build contacts from agent registry
+    const agents = getAllAgents();
+    const contacts: Contact[] = [
+      { id: 'mom', name: '妈妈', type: 'person', avatarEmoji: '👩', unreadCount: 0, agentId: 'mom', lastMessagePreview: '宝，怎么了？' },
+      { id: 'counselor', name: '王老师（辅导员）', type: 'person', avatarEmoji: '👨‍🏫', unreadCount: 0, agentId: 'counselor', lastMessagePreview: '同学你好' },
+      { id: 'senior', name: '学长-张浩', type: 'person', avatarEmoji: '🧑‍🎓', unreadCount: 0, agentId: 'senior', lastMessagePreview: '去年我也保研到Z大…' },
+      { id: 'group', name: '保研互助群 (327人)', type: 'group', avatarEmoji: '👥', unreadCount: 1, agentId: 'group', lastMessagePreview: '恭喜各位拿到offer！' },
+      { id: 'fake_admission', name: '招生办-张老师（未认证）', type: 'person', avatarEmoji: '🧑‍💼', unreadCount: 1, agentId: 'fake_admission', isHidden: false, lastMessagePreview: '你好，我是Z大招生办张老师…' },
+      { id: 'official_service', name: 'Z大研究生院（官方）', type: 'official', avatarEmoji: '🏛️', isOfficial: true, unreadCount: 0, agentId: 'official_service', lastMessagePreview: '欢迎关注官方服务号' },
+      { id: 'anti_fraud', name: '反诈咨询', type: 'system', avatarEmoji: '🛡️', unreadCount: 0, agentId: 'anti_fraud', lastMessagePreview: '有任何可疑情况都可以问我' },
+    ];
+
+    // Seed initial chat histories from agents
+    const chatHistories: Record<string, ChatMessage[]> = {};
+    for (const agent of agents) {
+      const initMsgs = agent.getInitialMessages?.() ?? [];
+      if (initMsgs.length > 0) {
+        chatHistories[agent.contactId] = initMsgs.map((m, i) => ({
+          id: generateId('msg'),
+          contactId: agent.contactId,
+          sender: 'agent' as const,
+          senderName: m.senderName,
+          content: m.content,
+          channel: m.channel,
+          timestamp: new Date(Date.now() - (initMsgs.length - i) * 60000).toISOString(),
+          metadata: m.metadata,
+        }));
+      }
+    }
+
     const state: GameState = {
       sessionId,
       phase: 'playing',
@@ -45,6 +78,15 @@ export class GameEngine {
       messageHistory: [this.eventToMessage(firstEvent, now)],
       flags: {},
       emergencyActionsCompleted: [],
+      // Chat system
+      contacts,
+      activeContactId: null,
+      chatHistories,
+      worldState: createInitialWorldState(),
+      activeView: 'chat_list',
+      browserState: null,
+      phoneState: { isCalling: false, calledContactId: null, callType: null, callResult: null },
+      notifications: [],
     };
 
     await gameSessionRepository.create(state);

@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import type { GameState, EventCard, GamePhase } from '@/domain/types/game';
+import type { ChatMessage, SystemNotification, ActiveView } from '@/domain/types/chat';
 import type { GameReport } from '@/domain/types/report';
 import { apiClient } from '@/lib/apiClient';
 import { saveSessionId, loadSessionId, clearSession } from '@/lib/storage';
@@ -14,9 +15,10 @@ interface GameStore {
   report: GameReport | null;
   feedback: string;
   isLoading: boolean;
+  isChatLoading: boolean;
   error: string | null;
 
-  // Actions
+  // Legacy event-card actions
   startGame(chapterId?: string): Promise<void>;
   submitAction(eventId: string, actionId: string): Promise<void>;
   loadReport(): Promise<void>;
@@ -24,6 +26,16 @@ interface GameStore {
   resetGame(): void;
   clearError(): void;
   setPhase(phase: GamePhase): void;
+
+  // Chat system actions
+  sendMessage(contactId: string, text: string): Promise<void>;
+  openContact(contactId: string): Promise<void>;
+  setActiveView(view: ActiveView): void;
+  narrativeTick(contactId?: string): Promise<void>;
+
+  // Derived helpers
+  getActiveMessages(): ChatMessage[];
+  getPendingNotifications(): SystemNotification[];
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -33,6 +45,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   report: null,
   feedback: '',
   isLoading: false,
+  isChatLoading: false,
   error: null,
 
   async startGame(chapterId = 'chapter_recommendation_001') {
@@ -119,5 +132,70 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set((s) => ({
       gameState: s.gameState ? { ...s.gameState, phase } : null,
     }));
+  },
+
+  async sendMessage(contactId: string, text: string) {
+    const { sessionId, gameState } = get();
+    if (!sessionId || !gameState) return;
+    set({ isChatLoading: true, error: null });
+    try {
+      const result = await apiClient.sendMessage(sessionId, contactId, text);
+      const updatedState = result.state;
+
+      // Handle phase transitions
+      if (result.triggerEmergency && gameState.phase === 'playing') {
+        updatedState.phase = 'emergency';
+      }
+      if (result.triggerReport) {
+        updatedState.phase = 'report';
+      }
+
+      set({ gameState: updatedState, isChatLoading: false });
+    } catch (err) {
+      set({ error: String(err), isChatLoading: false });
+    }
+  },
+
+  async openContact(contactId: string) {
+    const { sessionId } = get();
+    if (!sessionId) return;
+    set({ isChatLoading: true });
+    try {
+      const { state } = await apiClient.openContact(sessionId, contactId);
+      set({ gameState: state, isChatLoading: false });
+    } catch (err) {
+      set({ error: String(err), isChatLoading: false });
+    }
+  },
+
+  setActiveView(view: ActiveView) {
+    set((s) => ({
+      gameState: s.gameState ? { ...s.gameState, activeView: view } : null,
+    }));
+  },
+
+  async narrativeTick(contactId?: string) {
+    const { sessionId } = get();
+    if (!sessionId) return;
+    try {
+      const result = await apiClient.narrativeTick(sessionId, contactId);
+      const updatedState = result.state;
+      if (result.triggerEmergency) updatedState.phase = 'emergency';
+      if (result.triggerReport) updatedState.phase = 'report';
+      set({ gameState: updatedState });
+    } catch {
+      // Narrative ticks fail silently
+    }
+  },
+
+  getActiveMessages(): ChatMessage[] {
+    const { gameState } = get();
+    if (!gameState?.activeContactId) return [];
+    return gameState.chatHistories[gameState.activeContactId] ?? [];
+  },
+
+  getPendingNotifications(): SystemNotification[] {
+    const { gameState } = get();
+    return gameState?.notifications ?? [];
   },
 }));

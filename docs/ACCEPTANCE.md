@@ -1,25 +1,38 @@
 # ACCEPTANCE.md — 功能验收清单
 
-## 功能验收
+## v2.0 聊天系统验收
+
+| 验收项 | 预期 | 状态 |
+|--------|------|------|
+| npm run build 通过 | 0 TypeScript错误，8个Route Handler注册 | ✅ |
+| 7个联系人初始化 | 开始游戏后Chat List显示7个联系人 | ✅ |
+| 自由文本输入 | ChatWindow文本框可输入，Enter发送 | ✅ |
+| 快捷建议按钮 | ChatWindow底部显示5条建议，点击填充 | ✅ |
+| Agent回复 | 各联系人根据玩家意图给出不同回复 | ✅ |
+| 未读徽标 | 联系人列表显示未读数，打开后清零 | ✅ |
+| BottomNavigation | 5个标签：消息/浏览器/官网/电话/证据 | ✅ |
+| BrowserView倒计时 | 访问fake-confirm页面显示倒计时 | ✅ |
+| BrowserView禁用表单 | 表单字段为只读，显示"模拟输入"提示 | ✅ |
+| OfficialSiteView快捷操作 | 点击发送消息到official_service联系人 | ✅ |
+| PhoneView拨打 | 官方号码有正面结果，可疑号码无法接通 | ✅ |
+| EvidenceView | 截图保存的证据列出，含使用说明 | ✅ |
+| WorldState更新 | ChatService.sendMessage后worldState数值变化 | ✅ |
+| 叙事阶段流转 | authorityPressure>30时新通知出现 | ✅ |
+| 延迟后果 | 报告页显示delayedConsequences和turningPoints | ✅ |
+| 因果链分析 | 信任链分析/压力链摘要/恢复评估 | ✅ |
+| 调试面板隐藏 | 默认不显示，?debug=1可见 | ✅ |
+| StatusBar模糊标签 | 显示"轻微风险"等文字而非数值 | ✅ |
+
+## v1.0 功能验收
 
 | 验收项 | 预期 | 状态 |
 |--------|------|------|
 | npm install && npm run dev 启动 | 访问 http://localhost:3000 正常显示 | ✅ |
-| npm run build 通过 | 无TypeScript错误，无编译错误 | ✅ |
 | 完整游戏流程 | 开始 → 游戏 → 报告，流程完整 | ✅ |
-| 事件数量 | 至少12个事件节点 | ✅ E01-E12 |
-| 每事件行动数量 | 至少4个行动选项 | ✅ |
-| 行动影响风险值 | risky行动增加风险值 | ✅ |
-| 行动影响焦虑值 | 倒计时事件、催促事件增加焦虑值 | ✅ |
-| 证据链记录 | evidence类行动添加证据 | ✅ |
-| 行为日志记录 | 每个行动记录到actionHistory | ✅ |
-| 3种以上结局 | safe_confirmed/near_miss/info_leaked/money_lost_but_handled/fully_scammed | ✅ 5种 |
-| 应急处置阶段 | 触发info泄露或资金损失时进入EmergencyScreen | ✅ |
-| 复盘报告 | 引用玩家具体行为，包含评分和建议 | ✅ |
-| API可用性 | 5个Route Handler全部注册 | ✅ |
-| MockAIEventProvider | 文件存在，可正常调用 | ✅ |
-| LangGraphEventProvider | 文件存在，包含TODO注释 | ✅ |
-| AgentOrchestrator | 文件存在，包含多Agent扩展点 | ✅ |
+| 5种结局 | safe_confirmed/near_miss/info_leaked/money_lost_but_handled/fully_scammed | ✅ |
+| 应急处置阶段 | 触发submittedInfoLevel>20时进入EmergencyScreen | ✅ |
+| 复盘报告 | 含评分、时间轴、因果链、建议 | ✅ |
+| API可用性 | 8个Route Handler全部注册 | ✅ |
 | docs文档 | 4个文档文件完整 | ✅ |
 | 核心逻辑集中 | React组件不含业务判断 | ✅ |
 
@@ -80,28 +93,32 @@
 
 ---
 
-## 手动验收步骤
+## 手动验收步骤（v2.0）
 
 ```
 1. cd anti-fraud-simulator && npm run dev
 2. 打开 http://localhost:3000
-3. 点击"开始模拟"
-4. 按顺序体验事件E01-E12
-5. 在E06中选择"发送手机号和身份证号"触发应急阶段
-6. 完成3个应急行动
-7. 点击"查看复盘报告"
-8. 确认报告显示正确的结局和评分
+3. 点击"开始模拟" → 进入聊天列表
+4. 打开"保研互助群"→ 输入"这个链接安全吗？" → 确认群成员回复
+5. 打开"招生办-张老师（未认证）"→ 输入"请问怎么核实你的身份？" → 观察施压回复
+6. 切换至底栏"官网" → 点击"核实录取信息" → 切回消息，观察official_service回复
+7. 切换至底栏"电话" → 拨打96110 → 阅读反诈中心回复
+8. 回到张老师聊天 → 输入"我来提交信息" → 观察worldState变化（?debug=1可见）
+9. 检查StatusBar显示"中等风险"或更高警示
+10. 确认应急阶段触发（submittedInfoLevel>20）
+11. 确认报告包含因果链分析和转折点
 
-9. 重新开始，这次全程选择safe/verify行动
-10. 确认最终结局为"稳健确认"
+12. 重新开始，全程联系counselor和official_service核实
+13. 确认结局为"稳健确认"，报告因果链显示正面评价
 
-11. 检查桌面浏览器：右侧应显示调试面板
-12. 缩小浏览器到375px宽度：应无横向滚动
+14. 访问 http://localhost:3000/?debug=1 确认调试面板出现
+15. 缩小到375px宽度，确认无横向滚动
+16. 确认BrowserView假表单显示"模拟输入·请勿填写真实信息"
 
-13. 使用浏览器开发者工具测试API：
-    POST /api/session/start {"chapterId": "chapter_recommendation_001"}
-    GET /api/game/state?sessionId=xxx
-    POST /api/game/action {"sessionId":"xxx","eventId":"E01","actionId":"note_warning"}
-    POST /api/ai/generate-event {"sessionId":"xxx","teachingGoal":"authority_impersonation"}
+API测试：
+    POST /api/session/start {"chapterId":"chapter_recommendation_001"}
+    POST /api/chat/send {"sessionId":"xxx","contactId":"fake_admission","text":"我要核实身份"}
+    POST /api/chat/open-contact {"sessionId":"xxx","contactId":"counselor"}
+    POST /api/narrative/tick {"sessionId":"xxx","contactId":"group"}
     POST /api/report/generate {"sessionId":"xxx"}
 ```

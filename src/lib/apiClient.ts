@@ -1,4 +1,5 @@
 import type { GameState, EventCard } from '@/domain/types/game';
+import type { ChatMessage, SystemNotification } from '@/domain/types/chat';
 import type { GameReport } from '@/domain/types/report';
 import type { AIEventOutput } from '@/domain/types/ai';
 
@@ -45,6 +46,26 @@ export interface GenerateReportResponse {
   report: GameReport;
 }
 
+export interface SendMessageResponse {
+  state: GameState;
+  messages: ChatMessage[];
+  notifications: SystemNotification[];
+  triggerEmergency: boolean;
+  triggerReport: boolean;
+}
+
+export interface OpenContactResponse {
+  state: GameState;
+  chatHistory: ChatMessage[];
+}
+
+export interface NarrativeTickResponse {
+  state: GameState;
+  notifications: SystemNotification[];
+  triggerEmergency: boolean;
+  triggerReport: boolean;
+}
+
 export const apiClient = {
   startSession(chapterId: string): Promise<StartSessionResponse> {
     return post('/api/session/start', { chapterId });
@@ -64,5 +85,17 @@ export const apiClient = {
 
   generateReport(sessionId: string): Promise<GenerateReportResponse> {
     return post('/api/report/generate', { sessionId });
+  },
+
+  sendMessage(sessionId: string, contactId: string, text: string): Promise<SendMessageResponse> {
+    return post('/api/chat/send', { sessionId, contactId, text });
+  },
+
+  openContact(sessionId: string, contactId: string): Promise<OpenContactResponse> {
+    return post('/api/chat/open-contact', { sessionId, contactId });
+  },
+
+  narrativeTick(sessionId: string, contactId?: string): Promise<NarrativeTickResponse> {
+    return post('/api/narrative/tick', { sessionId, contactId });
   },
 };

@@ -1,5 +1,83 @@
 # AI_EXTENSION.md — AI扩展设计文档
 
+## v2.0 — Agent系统（IBaseAgent接口）
+
+聊天系统引入了基于规则的Agent层，与事件卡片AI层完全分离。
+
+### IBaseAgent接口
+
+```typescript
+// src/domain/agents/BaseAgent.ts
+export interface IBaseAgent {
+  readonly contactId: string;
+  readonly displayName: string;
+  readonly role: string;
+  generateResponse(input: AgentResponseInput): Promise<AgentResponse>;
+  getInitialMessages?(): AgentResponseMessage[];
+}
+```
+
+### 当前实现：MockAgent
+
+每个Agent继承`MockAgent`，实现两个抽象方法：
+1. `responseMap(input)` — 返回 `PlayerIntent → () => AgentResponseMessage[]` 的映射表
+2. `defaultDelayedConsequences(input)` — 返回当前意图对应的延迟后果
+
+### 替换为LLM Agent
+
+不改动任何调用方（ChatService、AgentRegistry），只需：
+
+```typescript
+// 新建 src/domain/agents/LLMAgent.ts
+export class LLMAgent implements IBaseAgent {
+  constructor(
+    readonly contactId: string,
+    readonly displayName: string,
+    readonly role: string,
+    private systemPrompt: string,
+  ) {}
+
+  async generateResponse(input: AgentResponseInput): Promise<AgentResponse> {
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const response = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 500,
+      system: this.systemPrompt,
+      messages: [{ role: 'user', content: buildAgentPrompt(input) }],
+    });
+    const raw = response.content[0].text;
+    // 解析、安全过滤、返回AgentResponse
+    return parseAgentResponse(raw);
+  }
+}
+
+// AgentRegistry.ts中替换
+registry['fake_admission'] = new LLMAgent(
+  'fake_admission',
+  '招生办-张老师（未认证）',
+  '风险模拟',
+  FAKE_ADMISSION_SYSTEM_PROMPT,  // 含安全约束的system prompt
+);
+```
+
+### IntentParser升级为LLM版
+
+```typescript
+// 新建 src/domain/chat/LLMIntentParser.ts
+export class LLMIntentParser {
+  async parseIntent(text: string): Promise<ParsedIntent> {
+    // 调用claude-haiku-4-5分类，低延迟
+    // 返回同样的{ intent, confidence, matchedKeywords }格式
+  }
+}
+
+// ChatService中切换
+const parsed = await llmIntentParser.parseIntent(playerText);
+// 其余代码不变
+```
+
+---
+
 ## 当前MockAIEventProvider实现方式
 
 ```
