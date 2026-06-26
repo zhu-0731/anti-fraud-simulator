@@ -50,3 +50,7 @@
 | Director 技能授权 | 基础完成 | 使用 `TacticRegistry.validateTacticSelection()` |
 | Director 冷却与强度 | 基础完成 | 已有单元测试覆盖冷却和难度强度 |
 | Director 规则回退 | 基础完成 | `DirectorAgent` 失败时回退 `RuleDirectorAgent` |
+| RiskActorAgent 契约 | 基础完成 | 已新增 `RiskActorInput` / `RiskActorOutput` / `IRiskActorAgent` |
+| 风险角色授权技能 | 基础完成 | `RiskActorAgent` 只使用 DirectorPlan 中允许且角色/渠道支持的技能 |
+| 八种技能可运行路径 | 基础完成 | 单元测试覆盖八个技能模板路径 |
+| 风险角色模拟域名 | 基础完成 | 测试确认不输出真实 URL |
