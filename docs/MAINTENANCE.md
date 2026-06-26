@@ -64,6 +64,8 @@ coverage/
 | domain/types/director.ts | ✅ | Director 输入/输出计划契约 |
 | domain/agents/director/RuleDirectorAgent.ts | ✅ | 规则 Director，输出授权技能和阶段计划 |
 | domain/agents/director/DirectorAgent.ts | ✅ | Director 包装器，主 Agent 失败时规则回退 |
+| domain/types/riskActor.ts | ✅ | RiskActor 输入/输出契约 |
+| domain/agents/risk/RiskActorAgent.ts | ✅ | 受控风险角色模板，只使用授权技能 |
 | domain/chat/IntentParser.ts | ✅ | 14意图，关键词匹配，接口预留LLM替换 |
 | domain/chat/ChatService.ts | ✅ | 意图→Agent→安全过滤→叙事→状态更新 |
 | domain/narrative/WorldState.ts | ✅ | createInitialWorldState + patchWorldState |
@@ -236,6 +238,12 @@ docs/
 - `RuleDirectorAgent` 根据 `DefenderState`、玩家意图、历史 `TacticUse` 和难度选择授权技能。
 - 技能选择必须通过 `TacticRegistry.validateTacticSelection()`。
 - `DirectorAgent` 包装器用于后续 AI Director；当前主实现仍是规则 Director。
+
+### RiskActorAgent
+
+- `RiskActorAgent` 接收 DirectorPlan，不自行选择技能。
+- 角色和渠道必须允许对应技能，否则不会生成该技能的 `TacticUse`。
+- 当前实现是教育模拟模板，后续可替换为 Gateway 结构化输出。
 
 ### 评分体系
 - 风险识别 35分：每个risky行动 -7分，safe/verify行动 +3分（上限+10）

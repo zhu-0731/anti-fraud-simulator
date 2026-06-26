@@ -325,3 +325,32 @@
 
 - Director 计划尚未驱动 RiskActorAgent 生成文本。
 - 尚未接入 AI Director；当前是规则 Director 和回退包装。
+
+## 阶段 7a：RiskActorAgent
+
+- 读取时间：2026-06-27
+- 分支：`feat/risk-actor-agent`
+- 设计文档路径：`docs/智能体设计.md`
+- 设计文档哈希：`9f0d91a8f95060c5f1f892119b46b9a91330332b`
+- 本阶段对应章节：`docs/项目一阶段执行文档.md` 阶段 7：RiskActorAgent；`docs/智能体设计.md` 第 2、6、10、12、27、28、40、41 节
+- 本阶段不实现的章节：SupportAgent、正式防守交互整合、完整红队玩法、持久化和持续进化
+
+### 完成内容
+
+- 新增 `RiskActorInput` / `RiskActorOutput` / `IRiskActorAgent`。
+- 新增模板化 `RiskActorAgent`，只根据 DirectorPlan 中授权的技能生成教育模拟文本。
+- 八个核心技能均有受控模板路径。
+- 未授权角色或官方角色不会使用风险技能。
+- 生成内容只使用 `game-simulated-link.local` 模拟域名。
+
+### 验证记录
+
+| 命令 | 结果 | 备注 |
+|---|---|---|
+| `npm run test` | PASS | 16 files, 54 tests |
+| `npm run build` | PASS | Next.js 16.2.6 production build |
+
+### 未完成
+
+- RiskActorAgent 尚未接入聊天 UI。
+- 多轮核实拖延、渠道切换和信息递进的完整运行时路径留到后续交互阶段。
