@@ -43,8 +43,13 @@ coverage/
 | domain/types/chat.ts | ✅ | Contact, ChatMessage, WorldState, PlayerIntent (v2) |
 | domain/types/game.ts | ✅ | GameState含聊天系统字段和双模式骨架 |
 | domain/types/defender.ts | ✅ | NarrativeStage 类型 |
+| domain/types/tactic.ts | ✅ | TacticCard、TacticUse、RoleCard、ChannelCard 和 DefenseCapability |
 | domain/gameModes.ts | ✅ | GameMode/Difficulty 归一化、防守/红队状态初始化与隔离校验 |
 | domain/types/report.ts | ✅ | 含因果链字段 (v2) |
+| domain/tactics/TacticRegistry.ts | ✅ | 八个核心技能、选择校验、重复使用衰减 |
+| domain/tactics/RoleRegistry.ts | ✅ | 六类共享角色卡 |
+| domain/tactics/ChannelRegistry.ts | ✅ | 六类共享渠道卡 |
+| domain/tactics/EventCompatibility.ts | ✅ | 旧 pressureTypes/safeActions 到正式元数据的兼容映射 |
 | domain/chat/IntentParser.ts | ✅ | 14意图，关键词匹配，接口预留LLM替换 |
 | domain/chat/ChatService.ts | ✅ | 意图→Agent→安全过滤→叙事→状态更新 |
 | domain/narrative/WorldState.ts | ✅ | createInitialWorldState + patchWorldState |
@@ -186,6 +191,13 @@ docs/
 - `GameDifficulty` 当前支持 `beginner`、`standard`、`advanced`。
 - 防守会话写入 `GameSessionRepository` 前会执行运行时校验，防止混入 `redTeamState`。
 - 红队模式当前只返回 `FEATURE_NOT_READY` 合同和空 `RedTeamState`，完整红队玩法不得在阶段 10 前提前实现。
+
+### 技能领域模型
+
+- 八个核心技能由 `TacticRegistry` 管理，不直接塞入 `EventCard` 主体。
+- 每个技能包含成本、冷却、最大强度、风险信号、防御能力、允许角色和允许渠道。
+- 旧事件的 `pressureTypes` 和 `safeActions` 会在导出时映射为 `tacticIds` 和 `testedCapabilities`。
+- `TacticUse` 当前只是领域类型，实际回合记录将在规则型防守运行时和 Episode 阶段接入。
 
 ### 评分体系
 - 风险识别 35分：每个risky行动 -7分，safe/verify行动 +3分（上限+10）

@@ -1,6 +1,7 @@
 import type { EventCard } from '@/domain/types/game';
+import { applyEventCompatibilityMetadata } from '@/domain/tactics/EventCompatibility';
 
-export const eventVariantsByGoal: Record<string, EventCard[]> = {
+const rawEventVariantsByGoal: Record<string, EventCard[]> = {
   authority_impersonation: [
     {
       id: 'AI_AUTH_01',
@@ -170,3 +171,12 @@ export const eventVariantsByGoal: Record<string, EventCard[]> = {
     },
   ],
 };
+
+export const eventVariantsByGoal: Record<string, EventCard[]> = Object.fromEntries(
+  Object.entries(rawEventVariantsByGoal).map(([goal, events]) => [
+    goal,
+    events.map((event) =>
+      applyEventCompatibilityMetadata(event, { source: 'director', difficulty: 'beginner', schemaVersion: 1 }),
+    ),
+  ]),
+);

@@ -147,6 +147,11 @@ export interface EventCard {
   defaultNextEventId?: string;
   teachingPoint: string;
   isTerminal?: boolean;
+  source?: 'static' | 'director' | 'fallback';
+  tacticIds?: import('./tactic').TacticType[];
+  testedCapabilities?: import('./tactic').DefenseCapability[];
+  difficulty?: GameDifficulty;
+  schemaVersion?: number;
 }
 
 export interface Evidence {
