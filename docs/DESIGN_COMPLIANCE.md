@@ -45,3 +45,8 @@
 | 安全输出检查 | 基础完成 | 输出真实 URL/支付替换警告会触发 `OUTPUT_BLOCKED` 回退 |
 | AI 调用日志 | 基础完成 | 已新增内存 `AICallLogRepository` |
 | live AI 验收 | 未完成 | 未调用真实 vivo/OpenAI 模型 |
+| DirectorAgent 契约 | 基础完成 | 已新增 `DirectorInput` / `DirectorPlan` / `IDirectorAgent` |
+| Director 不生成聊天文本 | 基础完成 | `RuleDirectorAgent` 只输出计划字段 |
+| Director 技能授权 | 基础完成 | 使用 `TacticRegistry.validateTacticSelection()` |
+| Director 冷却与强度 | 基础完成 | 已有单元测试覆盖冷却和难度强度 |
+| Director 规则回退 | 基础完成 | `DirectorAgent` 失败时回退 `RuleDirectorAgent` |

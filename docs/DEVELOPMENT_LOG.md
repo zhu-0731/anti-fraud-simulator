@@ -279,3 +279,49 @@
 - 尚未将 DirectorAgent / RiskActorAgent / SupportAgent 接入 Gateway。
 - AI 调用日志目前为内存仓储，持久化留到后续阶段。
 - 未进行真实 vivo/OpenAI 模型验收。
+
+## 阶段 6：DirectorAgent
+
+- 读取时间：2026-06-27
+- 分支：`feat/director-agent`
+- 设计文档路径：`docs/智能体设计.md`
+- 设计文档哈希：`9f0d91a8f95060c5f1f892119b46b9a91330332b`
+- 本阶段对应章节：`docs/项目一阶段执行文档.md` 阶段 6：DirectorAgent；`docs/智能体设计.md` 第 2、12、13、38、40、41 节
+- 本阶段不实现的章节：RiskActorAgent、SupportAgent、完整红队玩法、持久化和持续进化
+
+### 设计摘要
+
+- 本阶段目标：建立 DirectorAgent 计划契约，确保导演只决定阶段、角色、授权技能、强度和教学目标。
+- 涉及的数据结构：`DirectorInput`、`DirectorPlan`、`DirectorResponseRole`、`IDirectorAgent`。
+- 必须保持的安全边界：Director 不生成聊天文本，不直接修改 `GameState`，不绕过 `TacticRegistry` 授权技能。
+- 必须提供的回退：主 Director 失败时使用 `RuleDirectorAgent` 并标记 `fallbackUsed=true`。
+- 明确禁止实现的内容：不实现风险角色文本生成，不把完整剧本或裁判标准暴露给单一 Agent。
+
+### 完成内容
+
+- 新增 Director 类型契约，明确输入与输出。
+- 新增 `RuleDirectorAgent`，根据防守状态、玩家意图、难度和历史技能使用生成规则计划。
+- Director 输出包括响应角色、渠道、授权技能、最大强度、教学目标、阶段建议、视图效果和 reasonCode。
+- Director 使用 `TacticRegistry.validateTacticSelection()` 约束每轮技能、策略点、冷却和前置条件。
+- 新增 `DirectorAgent` 包装器，主 Agent 失败时回退规则 Director。
+
+### 验证记录
+
+| 命令 | 结果 | 备注 |
+|---|---|---|
+| `npm run lint` | PASS | 2026-06-27 执行通过 |
+| `npm run test` | PASS | 15 files, 44 tests |
+| `npm run build` | PASS | Next.js 16.2.6 production build |
+| `npm run test:e2e` | PASS | desktop-chromium 和 mobile-375 共 4 tests |
+
+### 测试证据
+
+- Playwright HTML report：`playwright-report/`
+- Playwright raw results：`test-results/`
+- Browser console log：由 `tests/e2e/fixtures/logged-test.ts` 附加到每个测试报告
+- Network log：由 `tests/e2e/fixtures/logged-test.ts` 附加到每个测试报告
+
+### 未完成
+
+- Director 计划尚未驱动 RiskActorAgent 生成文本。
+- 尚未接入 AI Director；当前是规则 Director 和回退包装。
