@@ -2,6 +2,7 @@ import type { AIEventProvider } from './AIEventProvider';
 import type { AIEventGenerationInput, AIEventOutput, AgentStep, AgentTrace } from '@/domain/types/ai';
 import { mockAIEventProvider } from './MockAIEventProvider';
 import { langGraphEventProvider } from './LangGraphEventProvider';
+import { openAICompatibleEventProvider } from './OpenAICompatibleEventProvider';
 import { safetyFilterService } from '@/domain/services/SafetyFilterService';
 import { generateId } from '@/lib/id';
 
@@ -20,6 +21,7 @@ export class AgentOrchestrator {
   private providers: Record<string, AIEventProvider> = {
     mock: mockAIEventProvider,
     langgraph: langGraphEventProvider,
+    'openai-compatible': openAICompatibleEventProvider,
   };
 
   private traces: Map<string, AgentTrace> = new Map();
