@@ -10,6 +10,9 @@ import { clamp } from '@/lib/clamp';
 import { createInitialWorldState } from '@/domain/narrative/WorldState';
 import { getAllAgents } from '@/domain/agents/AgentRegistry';
 import { createInitialDefenderState } from '@/domain/gameModes';
+import { calculateRepeatEffectMultiplier } from '@/domain/tactics/TacticRegistry';
+import type { InteractionChannel, RiskRoleType } from '@/domain/types/tactic';
+import { defenderStateReducer } from '@/domain/defender/DefenderStateReducer';
 
 export interface StartSessionResult {
   sessionId: string;
@@ -94,6 +97,7 @@ export class GameEngine {
       phoneState: { isCalling: false, calledContactId: null, callType: null, callResult: null },
       notifications: [],
       defenderState: createInitialDefenderState(),
+      tacticUses: [],
     };
 
     await gameSessionRepository.create(state);
@@ -210,6 +214,39 @@ export class GameEngine {
       if (completedKey.length >= 2) updated.emergencyHandled = true;
     }
 
+    updated.defenderState = defenderStateReducer.applyPatch(updated.defenderState, {
+      exposure: {
+        suspiciousLink: action.setsFlag === 'clicked_suspicious_link' ? 15 : 0,
+        informationRequest: action.leaksInfo ? 25 : 0,
+        paymentRequest: action.loseMoney ? 25 : 0,
+        unverifiedIdentity: event.tacticIds?.includes('authority_claim') ? 10 : 0,
+      },
+      defense: {
+        officialVerification:
+          action.category === 'verify' || action.setsFlag === 'official_verified' ? 15 : 0,
+        evidenceAwareness: action.addEvidence ? 15 : 0,
+        helpSeeking: action.category === 'emergency' ? 15 : 0,
+        contradictionAwareness: action.category === 'safe' ? 5 : 0,
+      },
+      pressure: {
+        authority: event.tacticIds?.includes('authority_claim') ? 10 : 0,
+        deadline: event.tacticIds?.includes('urgency_pressure') ? 10 : 0,
+        social: event.tacticIds?.includes('social_proof') ? 10 : 0,
+        emotional: event.tacticIds?.includes('loss_aversion') ? 10 : 0,
+      },
+      consequences: {
+        informationLeakLevel: action.leaksInfo ? 30 : 0,
+        simulatedMoneyLoss: action.loseMoney ? 30 : 0,
+        accountRiskLevel: action.setsFlag === 'credentials_leaked' ? 40 : 0,
+      },
+      discoveredFacts:
+        action.category === 'verify' || action.category === 'safe'
+          ? [`玩家执行安全动作：${action.label}`]
+          : [],
+      hiddenRiskSignals: event.tacticIds ?? [],
+      activeRiskActorIds: event.trueRiskLevel === 'none' ? [] : [event.senderName],
+    });
+
     // Record action
     const record: ActionRecord = {
       eventId: event.id,
@@ -222,6 +259,28 @@ export class GameEngine {
       feedback: action.feedback ?? '',
     };
     updated.actionHistory.push(record);
+
+    if (event.tacticIds?.length && event.trueRiskLevel !== 'none') {
+      const turnNumber = updated.tacticUses.length + 1;
+      const roleId = this.eventRole(event);
+      const channelId = this.eventChannel(event);
+      for (const tacticId of event.tacticIds) {
+        updated.tacticUses.push({
+          id: generateId('tu'),
+          tacticId,
+          mode: 'defender',
+          roleId,
+          channelId,
+          intensity: event.trueRiskLevel === 'critical' ? 3 : 2,
+          turnNumber,
+          effectMultiplier: calculateRepeatEffectMultiplier({
+            tacticId,
+            previousUses: updated.tacticUses,
+          }),
+          createdAt: now,
+        });
+      }
+    }
 
     // Player reply message
     const playerMessage: Message = {
@@ -260,6 +319,33 @@ export class GameEngine {
       isPlayer: false,
       riskLevel: event.trueRiskLevel,
     };
+  }
+
+  private eventRole(event: EventCard): RiskRoleType {
+    if (event.senderRole.includes('家长')) return 'family_forwarder';
+    if (event.senderRole.includes('学长') || event.senderRole.includes('同学')) return 'senior_student';
+    if (event.senderRole.includes('群')) return 'group_member';
+    if (event.senderRole.includes('短信') || event.senderRole.includes('系统')) return 'automated_notification';
+    if (event.senderRole.includes('客服')) return 'simulated_customer_service';
+    return 'unverified_staff';
+  }
+
+  private eventChannel(event: EventCard): InteractionChannel {
+    switch (event.channel) {
+      case 'sms':
+        return 'sms';
+      case 'email':
+        return 'email';
+      case 'browser':
+      case 'official_site':
+        return 'simulated_browser';
+      case 'call':
+        return 'simulated_call';
+      case 'wechat':
+        return event.senderRole.includes('群') ? 'group_chat' : 'private_chat';
+      default:
+        return 'private_chat';
+    }
   }
 }
 

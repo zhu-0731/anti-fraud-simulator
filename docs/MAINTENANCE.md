@@ -50,6 +50,12 @@ coverage/
 | domain/tactics/RoleRegistry.ts | ✅ | 六类共享角色卡 |
 | domain/tactics/ChannelRegistry.ts | ✅ | 六类共享渠道卡 |
 | domain/tactics/EventCompatibility.ts | ✅ | 旧 pressureTypes/safeActions 到正式元数据的兼容映射 |
+| domain/defender/DefenderStateReducer.ts | ✅ | 规则型防守状态 reducer，数值裁剪和阶段流转 |
+| domain/defender/DefenderRuleEngine.ts | ✅ | 根据玩家意图和联系人记录 TacticUse 并更新 DefenderState |
+| domain/defender/DefenderGameService.ts | ✅ | 防守模式应用服务，接管聊天 API route 的状态写回 |
+| domain/defender/RuleNarrativeDirector.ts | ✅ | 现有 NarrativeDirector 的规则回退包装 |
+| domain/defender/DefenderScoringService.ts | ✅ | 组合旧评分和新防守指标 |
+| domain/defender/DefenseRule.ts | ✅ | 可复用 DefenseRule 接口 |
 | domain/chat/IntentParser.ts | ✅ | 14意图，关键词匹配，接口预留LLM替换 |
 | domain/chat/ChatService.ts | ✅ | 意图→Agent→安全过滤→叙事→状态更新 |
 | domain/narrative/WorldState.ts | ✅ | createInitialWorldState + patchWorldState |
@@ -197,7 +203,15 @@ docs/
 - 八个核心技能由 `TacticRegistry` 管理，不直接塞入 `EventCard` 主体。
 - 每个技能包含成本、冷却、最大强度、风险信号、防御能力、允许角色和允许渠道。
 - 旧事件的 `pressureTypes` 和 `safeActions` 会在导出时映射为 `tacticIds` 和 `testedCapabilities`。
-- `TacticUse` 当前只是领域类型，实际回合记录将在规则型防守运行时和 Episode 阶段接入。
+- `TacticUse` 已在聊天回合和旧事件卡行动中记录；Episode 持久化留到阶段 9。
+
+### 规则型防守运行时
+
+- `/api/chat/send` 和 `/api/chat/open-contact` 现在通过 `DefenderGameService` 访问领域层。
+- `DefenderRuleEngine` 不调用 LLM，只根据本地意图解析、联系人和规则映射更新状态。
+- `DefenderStateReducer` 负责所有防守状态数值变更和阶段流转。
+- `RuleNarrativeDirector` 是后续 AI Director 失败时的规则回退点。
+- `EmergencyScreen` 在聊天路径触发应急时会固定使用 E11 应急事件，保证风险路径有可执行处置动作。
 
 ### 评分体系
 - 风险识别 35分：每个risky行动 -7分，safe/verify行动 +3分（上限+10）

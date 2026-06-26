@@ -27,4 +27,10 @@
 | 角色卡 | 基础完成 | 已新增 `RoleRegistry` |
 | 渠道卡 | 基础完成 | 已新增 `ChannelRegistry` |
 | 旧事件兼容元数据 | 基础完成 | `EventCard` 支持可选元数据，现有事件导出时自动补全 |
-| TacticUse 运行时记录 | 未完成 | 类型已定义，阶段 4/9 接入运行时和 Episode |
+| TacticUse 运行时记录 | 基础完成 | 聊天回合和旧事件卡行动均会记录 `TacticUse` |
+| DefenderStateReducer | 基础完成 | 已新增确定性 reducer，所有数值通过 `clamp` |
+| DefenderRuleEngine | 基础完成 | 已新增规则型回合更新，不依赖 LLM |
+| RuleNarrativeDirector | 基础完成 | 已包装现有 `NarrativeDirector` 作为规则回退 |
+| DefenderGameService | 基础完成 | `/api/chat/send` 和 `/api/chat/open-contact` 已迁移到防守应用服务 |
+| DefenseRule 可复用接口 | 基础完成 | 已新增独立 `DefenseRule` 接口 |
+| AI 关闭可运行 | 基础完成 | `AI_ENABLED=false` 下 E2E 通过 |

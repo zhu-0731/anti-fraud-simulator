@@ -223,5 +223,6 @@ export interface GameState {
   // Formal defender-mode state skeleton. Existing v2 chat/world fields remain
   // the compatibility runtime until the rule engine is migrated in stage 4.
   defenderState: DefenderState;
+  tacticUses: import('./tactic').TacticUse[];
   redTeamState?: never;
 }

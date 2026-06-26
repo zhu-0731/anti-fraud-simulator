@@ -176,3 +176,56 @@
 - 技能尚未接入规则型防守运行时和报告生成。
 - `TacticUse` 已定义但尚未在玩家回合中记录。
 - 未实现 AI Director 对技能的授权选择。
+
+## 阶段 4：规则型防守运行时
+
+- 读取时间：2026-06-27
+- 分支：`feat/defender-rule-runtime`
+- 设计文档路径：`docs/智能体设计.md`
+- 设计文档哈希：`9f0d91a8f95060c5f1f892119b46b9a91330332b`
+- 本阶段对应章节：`docs/项目一阶段执行文档.md` 阶段 4：规则型防守运行时；`docs/智能体设计.md` 第 11-15、31、38、40、41 节
+- 本阶段不实现的章节：正式 AI Gateway、DirectorAgent、RiskActorAgent、SupportAgent、完整红队玩法、持久化和持续进化
+
+### 设计摘要
+
+- 本阶段目标：让防守模式拥有明确的规则型领域运行时，继续保留现有聊天和事件卡流程。
+- 涉及的数据结构：`DefenderState`、`TacticUse`、`DefenseRule`、`DefenderRuleResult`。
+- 必须保持的安全边界：Rule 模式不依赖 LLM；玩家行为后果由代码决定；普通界面不展示技能标签或隐藏状态。
+- 必须提供的回退：`RuleNarrativeDirector` 包装现有 `NarrativeDirector`，作为后续 AI Director 的规则回退。
+- 明确禁止实现的内容：不接入真实模型，不让 AI 直接修改状态，不实现红队完整玩法。
+
+### 完成内容
+
+- 新增 `DefenderStateReducer`，以确定性 reducer 更新并裁剪防守状态数值。
+- 新增 `DefenderRuleEngine`，根据玩家意图、联系人和现有 `WorldState` 记录 `TacticUse`。
+- 新增 `RuleNarrativeDirector`，保留现有规则叙事导演作为正式回退点。
+- 新增 `DefenderScoringService`，组合旧评分与新防守状态指标。
+- 新增独立 `DefenseRule` 接口，为后续红队准备度和策略复用预留。
+- 新增 `DefenderGameService`，将 `/api/chat/send` 和 `/api/chat/open-contact` 从直接调用 `ChatService` 迁移到防守应用服务。
+- 后台 narrative tick 会同步 `DefenderState`，避免新旧状态漂移。
+- 旧事件卡行动也会根据兼容元数据记录 `TacticUse`，并更新 `DefenderState`。
+- 修复聊天触发应急后 `EmergencyScreen` 仍使用旧事件的问题，确保展示 E11 应急动作。
+- E2E 新增信息泄露进入应急路径，覆盖桌面和 375px 移动端。
+
+### 验证记录
+
+| 命令 | 结果 | 备注 |
+|---|---|---|
+| `npm run lint` | PASS | 2026-06-27 执行通过 |
+| `npm run test` | PASS | 12 files, 29 tests |
+| `npm run build` | PASS | Next.js 16.2.6 production build |
+| `npm run test:e2e` | PASS | desktop-chromium 和 mobile-375 共 4 tests |
+| `$env:AI_ENABLED='false'; $env:AI_PROVIDER='mock'; npm run test:e2e` | PASS | AI 关闭环境下 4 tests 通过 |
+
+### 测试证据
+
+- Playwright HTML report：`playwright-report/`
+- Playwright raw results：`test-results/`
+- Browser console log：由 `tests/e2e/fixtures/logged-test.ts` 附加到每个测试报告
+- Network log：由 `tests/e2e/fixtures/logged-test.ts` 附加到每个测试报告
+
+### 未完成
+
+- 报告尚未完整消费 `TacticUse` 解释每轮技能和防御动作。
+- 结构化服务端 logger 尚未建立。
+- 完整安全通关到报告和风险路径到报告仍待阶段 8/9 扩展 E2E。

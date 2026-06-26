@@ -11,6 +11,7 @@ describe('game session startup', () => {
     expect(result.state.difficulty).toBe('beginner');
     expect(result.state.phase).toBe('playing');
     expect(result.state.defenderState.narrativeStage).toBe('normal_context');
+    expect(result.state.tacticUses).toEqual([]);
     expect(result.state.contacts).toHaveLength(7);
     expect(result.state.activeView).toBe('chat_list');
     expect(result.state.worldState.narrativeStage).toBe('normal_context');
