@@ -56,6 +56,11 @@ coverage/
 | domain/defender/RuleNarrativeDirector.ts | ✅ | 现有 NarrativeDirector 的规则回退包装 |
 | domain/defender/DefenderScoringService.ts | ✅ | 组合旧评分和新防守指标 |
 | domain/defender/DefenseRule.ts | ✅ | 可复用 DefenseRule 接口 |
+| domain/ai/gateway/AIGateway.ts | ✅ | 正式 AI Gateway，超时、重试、Schema、安全和回退 |
+| domain/ai/gateway/OpenAIProvider.ts | ✅ | OpenAI/vivo 兼容 Chat Completions Provider |
+| domain/ai/gateway/MockAIProvider.ts | ✅ | Gateway Mock Provider |
+| domain/ai/gateway/schemas/EventCardSchema.ts | ✅ | Zod 运行时 Schema |
+| domain/ai/gateway/AICallLogRepository.ts | ✅ | 内存 AI 调用日志 |
 | domain/chat/IntentParser.ts | ✅ | 14意图，关键词匹配，接口预留LLM替换 |
 | domain/chat/ChatService.ts | ✅ | 意图→Agent→安全过滤→叙事→状态更新 |
 | domain/narrative/WorldState.ts | ✅ | createInitialWorldState + patchWorldState |
@@ -212,6 +217,15 @@ docs/
 - `DefenderStateReducer` 负责所有防守状态数值变更和阶段流转。
 - `RuleNarrativeDirector` 是后续 AI Director 失败时的规则回退点。
 - `EmergencyScreen` 在聊天路径触发应急时会固定使用 E11 应急事件，保证风险路径有可执行处置动作。
+
+### AI Gateway
+
+- 正式 AI 入口是 `src/domain/ai/gateway/AIGateway.ts`。
+- 旧 `OpenAICompatibleEventProvider` 保留为历史实验原型，不是正式 Gateway。
+- Gateway 默认可走 `mock`，`AI_ENABLED=false` 或错误时回退 Mock。
+- vivo 兼容调用使用 `OPENAI_COMPATIBLE_BASE_URL`、`OPENAI_COMPATIBLE_MODEL`、`OPENAI_COMPATIBLE_API_KEY`；也支持空模板变量 `VIVO_APP_ID` / `VIVO_APP_KEY`。
+- Gateway 不读取 `api_key.txt`，真实密钥只允许放本地 `.env.local`。
+- live 模型验收未执行；当前通过 Mock、非法输出、超时、限流和回退测试验证。
 
 ### 评分体系
 - 风险识别 35分：每个risky行动 -7分，safe/verify行动 +3分（上限+10）

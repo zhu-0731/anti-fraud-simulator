@@ -34,3 +34,14 @@
 | DefenderGameService | 基础完成 | `/api/chat/send` 和 `/api/chat/open-contact` 已迁移到防守应用服务 |
 | DefenseRule 可复用接口 | 基础完成 | 已新增独立 `DefenseRule` 接口 |
 | AI 关闭可运行 | 基础完成 | `AI_ENABLED=false` 下 E2E 通过 |
+| 正式 AI Gateway | 基础完成 | 已新增 `AIGateway`，`/api/ai/generate-event` 已切换 |
+| 统一 AIProvider 接口 | 基础完成 | 已新增正式 `AIProvider` |
+| Structured Output | 基础完成 | `EventCardSchema` 使用 Zod 校验结构化输出 |
+| Schema 校验 | 基础完成 | 严格拒绝缺字段、越界、未知枚举和额外字段 |
+| 超时 | 基础完成 | Gateway 使用 `AbortController` 和 `AI_TIMEOUT_MS` |
+| 有限重试 | 基础完成 | 可重试错误最多重试 `AI_MAX_RETRIES`，默认 1 |
+| 错误码归一化 | 基础完成 | 已新增 `AIErrorCode` / `AIError` |
+| 安全输入检查 | 基础完成 | `SafetyPipeline.validateInput()` 阻断 prompt injection 类输入 |
+| 安全输出检查 | 基础完成 | 输出真实 URL/支付替换警告会触发 `OUTPUT_BLOCKED` 回退 |
+| AI 调用日志 | 基础完成 | 已新增内存 `AICallLogRepository` |
+| live AI 验收 | 未完成 | 未调用真实 vivo/OpenAI 模型 |

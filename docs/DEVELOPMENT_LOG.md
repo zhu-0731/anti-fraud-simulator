@@ -229,3 +229,53 @@
 - 报告尚未完整消费 `TacticUse` 解释每轮技能和防御动作。
 - 结构化服务端 logger 尚未建立。
 - 完整安全通关到报告和风险路径到报告仍待阶段 8/9 扩展 E2E。
+
+## 阶段 5：AI Gateway
+
+- 读取时间：2026-06-27
+- 分支：`feat/ai-gateway`
+- 设计文档路径：`docs/智能体设计.md`
+- 设计文档哈希：`9f0d91a8f95060c5f1f892119b46b9a91330332b`
+- 本阶段对应章节：`docs/项目一阶段执行文档.md` 阶段 5：AI Gateway；`docs/智能体设计.md` 第 3、27、28、36、40、41 节
+- 本阶段不实现的章节：DirectorAgent、RiskActorAgent、SupportAgent、完整红队玩法、持久化和持续进化
+
+### 设计摘要
+
+- 本阶段目标：建立 Provider 无关的正式 `AIGateway`，替代旧实验 Provider 作为正式入口。
+- 涉及的数据结构：`AIProvider`、`AIErrorCode`、`AICallLog`、`EventCardSchema`、`GenerateEventGatewayResult`。
+- 必须保持的安全边界：模型输出必须先经过 JSON 解析、Zod Schema 校验和安全输出检查；真实密钥只从环境变量读取。
+- 必须提供的回退：AI 关闭、缺 key、超时、限流、服务错误、空输出、非法 JSON、Schema 不匹配、输入/输出安全失败均回退 Mock。
+- 明确禁止实现的内容：不让模型直接覆盖 `GameState`，不读取 `api_key.txt`，不自动重试超过一次，不执行 live 模型验收。
+
+### 完成内容
+
+- 新增正式 `AIGateway`，支持 requestId、AbortController 超时、最多一次重试、错误码归一化和 Mock 回退。
+- 新增正式 `AIProvider` 接口，以及 `MockAIProvider` 和 OpenAI/vivo 兼容 `OpenAIProvider`。
+- 新增 `EventCardSchema`，使用 Zod 运行时校验模型输出，拒绝额外字段。
+- 新增 `SafetyPipeline`，对输入做 prompt injection 检查，对输出做安全检查；真实 URL 或支付替换警告会触发 `OUTPUT_BLOCKED` 回退。
+- 新增内存 `AICallLogRepository`，记录 requestId、sessionId、provider、model、latency、schemaValid、fallbackUsed、errorCode 和 retryCount。
+- `/api/ai/generate-event` 已切换到正式 `AIGateway`。
+- `.env.example` 增加空的 `VIVO_APP_ID` 和 `VIVO_APP_KEY`，不包含任何真实值。
+
+### 验证记录
+
+| 命令 | 结果 | 备注 |
+|---|---|---|
+| `npm run lint` | PASS | 2026-06-27 执行通过 |
+| `npm run test` | PASS | 14 files, 38 tests |
+| `npm run build` | PASS | Next.js 16.2.6 production build |
+| `npm run test:e2e` | PASS | desktop-chromium 和 mobile-375 共 4 tests |
+| live vivo/OpenAI call | NOT RUN | 未执行真实模型调用，避免使用真实 key 和产生费用 |
+
+### 测试证据
+
+- Playwright HTML report：`playwright-report/`
+- Playwright raw results：`test-results/`
+- Browser console log：由 `tests/e2e/fixtures/logged-test.ts` 附加到每个测试报告
+- Network log：由 `tests/e2e/fixtures/logged-test.ts` 附加到每个测试报告
+
+### 未完成
+
+- 尚未将 DirectorAgent / RiskActorAgent / SupportAgent 接入 Gateway。
+- AI 调用日志目前为内存仓储，持久化留到后续阶段。
+- 未进行真实 vivo/OpenAI 模型验收。

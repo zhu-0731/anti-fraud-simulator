@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { agentOrchestrator } from '@/domain/ai/AgentOrchestrator';
+import { aiGateway } from '@/domain/ai/gateway/AIGateway';
 import { gameSessionRepository } from '@/domain/repositories/GameSessionRepository';
 import type { AIEventGenerationInput } from '@/domain/types/ai';
 
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     };
 
     const providerName = process.env.AI_PROVIDER ?? 'mock';
-    const output = await agentOrchestrator.generateEventWithSafetyFilter(input, providerName);
+    const output = await aiGateway.generateEvent(input, providerName);
 
     return NextResponse.json(output, { status: 200 });
   } catch (err) {
