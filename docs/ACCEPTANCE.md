@@ -51,6 +51,22 @@
 | 风险路径 E2E | 提交模拟信息后进入应急阶段 | ✅ |
 | 应急动作可用 | 聊天触发应急后展示 E11 处置动作 | ✅ |
 
+## 阶段 5：AI Gateway 验收
+
+| 验收项 | 预期 | 状态 |
+|--------|------|------|
+| 正式 Gateway | `/api/ai/generate-event` 使用 `AIGateway` | ✅ |
+| Provider 接口 | Agent 不直接实例化模型 SDK | ✅ |
+| Structured Output | EventCard 输出经过 Zod Schema | ✅ |
+| Schema 非法回退 | 缺字段、非法 JSON、额外字段被拒绝 | ✅ |
+| 超时回退 | AbortController 超时返回 Mock fallback | ✅ |
+| 有限重试 | 可重试错误最多重试一次 | ✅ |
+| 安全输入 | Prompt injection 类输入被阻断 | ✅ |
+| 安全输出 | 真实 URL 输出触发回退 | ✅ |
+| 缺 key / AI 关闭 | 不影响 Mock/Rule 路径 | ✅ |
+| 调用日志 | 记录 requestId、errorCode、fallbackUsed、retryCount | ✅ |
+| live 模型验收 | 真实 vivo/OpenAI 调用 | 未执行 |
+
 ## v2.0 聊天系统验收
 
 | 验收项 | 预期 | 状态 |

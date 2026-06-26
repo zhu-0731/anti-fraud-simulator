@@ -78,14 +78,33 @@ const parsed = await llmIntentParser.parseIntent(playerText);
 
 ---
 
-## 当前AI事件生成Provider
+## 正式 AI Gateway
 
-### OpenAI-compatible provider
+正式 AI 入口：
 
-项目已接入 OpenAI-compatible Chat Completions 风格调用：
+```text
+src/domain/ai/gateway/AIGateway.ts
+```
+
+能力：
+
+- 统一 `AIProvider` 接口
+- Zod 结构化输出校验
+- `AbortController` 超时
+- 最多一次重试
+- 错误码归一化
+- 输入/输出安全检查
+- Mock/Rule fallback
+- 内存 AI 调用日志
+
+`/api/ai/generate-event` 当前已通过正式 Gateway 调用。
+
+### OpenAI/vivo compatible provider
+
+正式 Provider：
 
 ```
-src/domain/ai/OpenAICompatibleEventProvider.ts
+src/domain/ai/gateway/OpenAIProvider.ts
 ```
 
 启用方式：
@@ -97,36 +116,49 @@ OPENAI_COMPATIBLE_MODEL=gpt-4.1-mini
 OPENAI_COMPATIBLE_API_KEY=your_key_here
 ```
 
-vivo 蓝心大模型配置示例：
+vivo 蓝心大模型配置模板：
 
 ```env
 AI_PROVIDER=openai-compatible
 OPENAI_COMPATIBLE_BASE_URL=https://api-ai.vivo.com.cn/v1
 OPENAI_COMPATIBLE_MODEL=Doubao-Seed-2.0-mini
-OPENAI_COMPATIBLE_API_KEY=your_AppKey
+OPENAI_COMPATIBLE_API_KEY=
+VIVO_APP_ID=
+VIVO_APP_KEY=
 ```
 
 说明：
-- `OPENAI_COMPATIBLE_API_KEY` 优先，其次读取 `OPENAI_API_KEY`。
+- `OPENAI_COMPATIBLE_API_KEY` 优先，其次读取 `OPENAI_API_KEY`，再其次读取 `VIVO_APP_KEY`。
 - 密钥只从环境变量读取，推荐放在本地 `.env.local`；不要提交真实密钥。
 - `OPENAI_COMPATIBLE_BASE_URL` 可以替换为其他支持 OpenAI Chat Completions 风格的服务地址。
 - 请求会自动附带 `request_id` 查询参数，兼容 vivo 文档要求。
-- 生成结果必须解析为 `EventCard` JSON，并继续经过 `SafetyFilterService` 过滤。
+- 如果设置 `VIVO_APP_ID`，请求会附带 `X-App-Id` 头；未设置时不发送该头。
+- 生成结果必须先通过 `EventCardSchema`，再经过 `SafetyPipeline`。
+
+### 历史实验 Provider
+
+以下文件保留用于了解早期原型，不是正式 AI Gateway：
+
+```text
+src/domain/ai/OpenAICompatibleEventProvider.ts
+```
+
+在阶段 5 之后，不应继续扩展该类作为正式能力。
 
 ### Mock provider
 
-Mock provider 仍然保留，用于无 key 或离线演示：
+正式 Gateway 的 Mock provider：
 
 ```
-src/domain/ai/MockAIEventProvider.ts
+src/domain/ai/gateway/MockAIProvider.ts
 ```
 
 工作原理：
 1. 接收`AIEventGenerationInput`（包含teachingGoal、sessionId、当前状态）
 2. 从`eventVariants.ts`中查找匹配teachingGoal的事件池
 3. 排除已在actionHistory中出现的事件（避免重复）
-4. 返回符合`AIEventOutput`格式的结果
-5. 输出经过`SafetyFilterService`过滤
+4. 返回原始 JSON 文本给 Gateway
+5. Gateway 统一执行 Schema 校验、安全检查和日志记录
 
 支持的teachingGoal：
 - `authority_impersonation`：权威冒充
