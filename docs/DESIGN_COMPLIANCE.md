@@ -10,8 +10,9 @@
 | 安全输入检查 | 未完成 | 尚未建立统一安全输入管线 |
 | 安全输出检查 | 部分完成 | 存在 `SafetyFilterService` |
 | 规则回退 | 部分完成 | Orchestrator 有 Mock 路径 |
-| 自动化单元测试 | 未完成 | 无 Vitest |
-| 自动化 E2E | 未完成 | 无 Playwright |
-| 浏览器日志抓取 | 未完成 | 无 Fixture |
+| 自动化单元测试 | 基础完成 | 已接入 Vitest，覆盖 `clamp` 和 `SafetyFilterService` |
+| 自动化集成测试 | 基础完成 | 已覆盖 `GameEngine.startSession` |
+| 自动化 E2E | 基础完成 | 已接入 Playwright，覆盖桌面和 375px 移动冒烟路径 |
+| 浏览器日志抓取 | 基础完成 | 已有 `tests/e2e/fixtures/logged-test.ts` |
 | 结构化服务端日志 | 未完成 | 无统一 logger |
 | `OpenAICompatibleEventProvider` 定位 | 部分符合 | 仅作为历史遗留实验原型，不是正式 AI Gateway |

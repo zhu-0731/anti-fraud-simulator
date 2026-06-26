@@ -7,7 +7,10 @@
 | 命令 | 状态 |
 |------|------|
 | npm run lint | ✅ |
+| npm run test | ✅ |
 | npm run build | ✅ |
+| npm run test:e2e | ✅ |
+| npm run verify | ✅ |
 
 ## v2.0 聊天系统验收
 

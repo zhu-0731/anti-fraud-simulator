@@ -14,6 +14,26 @@ npm run build     # 生产构建（已验证通过）
 npm run start     # 启动生产服务
 ```
 
+## 如何运行测试
+
+```bash
+npm run lint       # ESLint
+npm run test       # Vitest 单元/集成测试
+npm run build      # Next.js 生产构建
+npm run test:e2e   # Playwright 桌面和移动端冒烟测试
+npm run verify     # lint + test + build + e2e
+```
+
+测试产物：
+
+```text
+playwright-report/
+test-results/
+coverage/
+```
+
+以上目录不提交 Git。`test:e2e` 使用生产构建和 `next start`，避免开发模式 HMR WebSocket 干扰浏览器日志判断。
+
 ---
 
 ## 已完成模块
