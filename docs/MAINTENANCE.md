@@ -254,6 +254,15 @@ docs/
 - 辅导员/官方/反诈为 authoritative，不能给风险操作。
 - 当前实现是规则模板，尚未替换旧 `AgentRegistry` 中的 UI 聊天 Agent。
 
+### Defender Interaction
+
+- StartScreen 提供防守模式、红队占位、难度选择和任务背景。
+- 官网页的“完成核实并查看复盘”是安全路径正式收口，仍通过 `sendMessage('official_service', ...)` 更新服务端状态。
+- 电话页只负责展示通话结果和记录核实进度，不应自动跳转复盘页。
+- 应急页复盘按钮直接切换到 `report` 阶段，不再依赖旧事件卡动作。
+- `NarrativeDirector` 的 intent/contact 数值变更按增量累计；不要在交互阶段改回覆盖语义。
+- 普通玩家界面不得显示 `WorldState`、`DefenderState`、`TacticUse`、技能标签或 DirectorPlan；这些只能在 `?debug=1` 调试面板出现。
+
 ### 评分体系
 - 风险识别 35分：每个risky行动 -7分，safe/verify行动 +3分（上限+10）
 - 核验路径 25分：官方核验+15，辅导员确认+5，官网检查+5
@@ -276,7 +285,6 @@ otherwise → safe_confirmed
 
 1. **服务器重启丢失会话**：GameSessionRepository是内存实现，服务器重启后会话丢失。前端会自动重新开始。
 2. **ProfileScreen未从StartScreen流入**：当前版本startGame后直接进入playing阶段，profile阶段需手动调用setPhase。可以在StartScreen添加一个"查看角色"步骤。
-3. **EmergencyScreen的"查看复盘报告"按钮**：使用了硬编码事件ID，后续可以改为直接切换阶段。
 
 ---
 

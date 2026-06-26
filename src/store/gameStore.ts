@@ -1,7 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
-import type { GameState, EventCard, GamePhase } from '@/domain/types/game';
+import type { GameState, EventCard, GamePhase, GameDifficulty } from '@/domain/types/game';
 import type { ChatMessage, SystemNotification, ActiveView } from '@/domain/types/chat';
 import type { GameReport } from '@/domain/types/report';
 import { apiClient } from '@/lib/apiClient';
@@ -19,7 +19,7 @@ interface GameStore {
   error: string | null;
 
   // Legacy event-card actions
-  startGame(chapterId?: string): Promise<void>;
+  startGame(chapterId?: string, difficulty?: GameDifficulty): Promise<void>;
   submitAction(eventId: string, actionId: string): Promise<void>;
   loadReport(): Promise<void>;
   restoreSession(): Promise<void>;
@@ -49,10 +49,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   isChatLoading: false,
   error: null,
 
-  async startGame(chapterId = 'chapter_recommendation_001') {
+  async startGame(chapterId = 'chapter_recommendation_001', difficulty: GameDifficulty = 'beginner') {
     set({ isLoading: true, error: null });
     try {
-      const { sessionId, state, firstEvent } = await apiClient.startSession(chapterId);
+      const { sessionId, state, firstEvent } = await apiClient.startSession(chapterId, difficulty);
       saveSessionId(sessionId);
       set({
         sessionId,

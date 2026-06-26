@@ -74,7 +74,7 @@ export class NarrativeDirector {
     // Contact-specific extra patches
     const contactPatch = this.contactPatch(contactId, intent);
 
-    let updated = patchWorldState(worldState, { ...intentPatch, ...contactPatch });
+    let updated = patchWorldState(worldState, buildIncrementalPatch(worldState, intentPatch, contactPatch));
 
     // Resolve new stage
     const newStage = resolveStage(updated);
@@ -107,9 +107,11 @@ export class NarrativeDirector {
     const triggerEmergency = updated.submittedInfoLevel > 20;
 
     // Report trigger
+    const canCompleteFromContact = contactId === 'official_service' || contactId === 'counselor';
     const triggerReport =
-      (updated.officialPathAwareness > 60 && updated.submittedInfoLevel === 0) ||
-      (intent === 'call_official' && updated.officialPathAwareness > 40);
+      canCompleteFromContact &&
+      updated.submittedInfoLevel === 0 &&
+      updated.officialPathAwareness >= 60;
 
     return { updatedWorldState: updated, newNotifications, triggerEmergency, triggerReport };
   }
@@ -156,3 +158,42 @@ export class NarrativeDirector {
 }
 
 export const narrativeDirector = new NarrativeDirector();
+
+function buildIncrementalPatch(
+  current: WorldState,
+  ...patches: Partial<WorldState>[]
+): Partial<WorldState> {
+  const numericKeys: (keyof Pick<
+    WorldState,
+    | 'trustFamilyChain'
+    | 'trustPeerChain'
+    | 'authorityPressure'
+    | 'deadlinePressure'
+    | 'officialPathAwareness'
+    | 'suspiciousLinkExposure'
+    | 'submittedInfoLevel'
+  >)[] = [
+    'trustFamilyChain',
+    'trustPeerChain',
+    'authorityPressure',
+    'deadlinePressure',
+    'officialPathAwareness',
+    'suspiciousLinkExposure',
+    'submittedInfoLevel',
+  ];
+
+  const merged: Partial<WorldState> = {};
+
+  for (const key of numericKeys) {
+    let delta = 0;
+    for (const patch of patches) {
+      const value = patch[key];
+      if (typeof value === 'number') delta += value;
+    }
+    if (delta !== 0) {
+      merged[key] = current[key] + delta;
+    }
+  }
+
+  return merged;
+}

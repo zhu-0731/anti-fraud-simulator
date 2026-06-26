@@ -7,7 +7,7 @@ import type { EventCard } from '@/domain/types/game';
 import { chapter01Events } from '@/data/chapter01';
 
 export default function EmergencyScreen() {
-  const { gameState, currentEvent, submitAction, isLoading, feedback } = useGameStore();
+  const { gameState, currentEvent, submitAction, setPhase, isLoading, feedback } = useGameStore();
 
   if (!gameState) return null;
 
@@ -87,7 +87,7 @@ export default function EmergencyScreen() {
       {/* Proceed to report */}
       <div className="px-4 pb-6 pt-2 bg-[#0B1728] border-t border-[#334155]">
         <button
-          onClick={() => submitAction(emergencyEvent?.id ?? 'E11', 'view_report')}
+          onClick={() => setPhase('report')}
           disabled={isLoading}
           className="w-full text-[#F8FAFC] font-semibold text-sm py-3 rounded-xl border border-[#334155] bg-[#172033] active:scale-[0.98]"
         >
