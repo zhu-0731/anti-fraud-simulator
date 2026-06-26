@@ -148,6 +148,8 @@ export class ChatService {
       riskScore: Math.round(newRiskScore),
       anxietyScore: Math.round(newAnxietyScore),
       sensitiveInfoLeaked: state.sensitiveInfoLeaked || tickResult.updatedWorldState.submittedInfoLevel > 20,
+      officialVerified: state.officialVerified || isOfficialVerification(contactId, parsed.intent, tickResult.updatedWorldState.officialPathAwareness),
+      taskCompleted: state.taskCompleted || tickResult.triggerReport,
     };
 
     return {
@@ -181,3 +183,22 @@ export class ChatService {
 }
 
 export const chatService = new ChatService();
+
+function isOfficialVerification(
+  contactId: string,
+  intent: ReturnType<typeof intentParser.parseIntent>['intent'],
+  officialPathAwareness: number,
+): boolean {
+  if (officialPathAwareness >= 60) return true;
+  if (contactId !== 'official_service' && contactId !== 'anti_fraud' && contactId !== 'counselor') {
+    return false;
+  }
+
+  return (
+    intent === 'ask_verification' ||
+    intent === 'search_official_site' ||
+    intent === 'call_official' ||
+    intent === 'report' ||
+    intent === 'emergency_help'
+  );
+}

@@ -52,6 +52,28 @@ export default function DesktopLayout({ children }: DesktopLayoutProps) {
               </div>
             </>
           )}
+          {gameState.defenderState && (
+            <>
+              <p className="text-[#F8FAFC] font-semibold mt-3 mb-1 text-sm">DefenderState</p>
+              <div className="space-y-1">
+                <Row label="叙事阶段" value={gameState.defenderState.narrativeStage} />
+                <Row label="可疑链接" value={gameState.defenderState.exposure.suspiciousLink} />
+                <Row label="身份未核实" value={gameState.defenderState.exposure.unverifiedIdentity} />
+                <Row label="官方核验" value={gameState.defenderState.defense.officialVerification} />
+                <Row label="截止压力" value={gameState.defenderState.pressure.deadline} />
+                <Row label="信息泄露" value={gameState.defenderState.consequences.informationLeakLevel} />
+              </div>
+            </>
+          )}
+          {gameState.tacticUses.length > 0 && (
+            <>
+              <p className="text-[#F8FAFC] font-semibold mt-3 mb-1 text-sm">TacticUse</p>
+              <div className="space-y-1">
+                <Row label="总数" value={gameState.tacticUses.length} />
+                <Row label="最近技能" value={gameState.tacticUses[gameState.tacticUses.length - 1].tacticId} />
+              </div>
+            </>
+          )}
           {gameState.notifications.length > 0 && (
             <>
               <p className="text-[#F8FAFC] font-semibold mt-3 mb-1 text-sm">通知</p>

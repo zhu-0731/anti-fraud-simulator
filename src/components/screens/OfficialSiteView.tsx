@@ -1,9 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
 
 export default function OfficialSiteView() {
   const { gameState, sendMessage, setActiveView } = useGameStore();
+  const [isCompleting, setIsCompleting] = useState(false);
 
   if (!gameState) return null;
 
@@ -11,6 +13,13 @@ export default function OfficialSiteView() {
     // Open the official service contact and send a message
     sendMessage('official_service', action);
     setActiveView('chat_list');
+  };
+
+  const handleCompleteVerification = async () => {
+    setIsCompleting(true);
+    await sendMessage('official_service', '我想通过官方网站核实一下录取信息');
+    await sendMessage('official_service', '我已确认录取确认官方渠道，完成核实');
+    setIsCompleting(false);
   };
 
   return (
@@ -86,6 +95,13 @@ export default function OfficialSiteView() {
               {label} →
             </button>
           ))}
+          <button
+            onClick={handleCompleteVerification}
+            disabled={isCompleting}
+            className="w-full text-left text-sm text-white bg-[#0F766E] border border-[#0F766E] hover:bg-[#0d6460] disabled:opacity-60 rounded-xl px-4 py-3 transition-colors"
+          >
+            {isCompleting ? '正在确认…' : '完成核实并查看复盘 →'}
+          </button>
         </div>
       </div>
     </div>

@@ -20,6 +20,32 @@ describe('DefenderGameService rule runtime', () => {
     expect(persisted?.tacticUses).toHaveLength(result.state.tacticUses.length);
   });
 
+  it('marks safe official verification as completed before report', async () => {
+    const session = await gameEngine.startSession('chapter_recommendation_001');
+
+    await defenderGameService.sendMessage(
+      session.sessionId,
+      'official_service',
+      '我想核实我的录取信息是否真实',
+    );
+    await defenderGameService.sendMessage(
+      session.sessionId,
+      'anti_fraud',
+      '我拨打了96110反诈热线确认',
+    );
+    const result = await defenderGameService.sendMessage(
+      session.sessionId,
+      'official_service',
+      '请问录取确认的官方渠道是什么？',
+    );
+
+    expect(result.triggerReport).toBe(true);
+    expect(result.state.phase).toBe('report');
+    expect(result.state.officialVerified).toBe(true);
+    expect(result.state.taskCompleted).toBe(true);
+    expect(result.state.sensitiveInfoLeaked).toBe(false);
+  });
+
   it('records legacy event-card tactics through GameEngine actions', async () => {
     const session = await gameEngine.startSession('chapter_recommendation_001');
 

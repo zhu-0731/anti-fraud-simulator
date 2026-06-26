@@ -10,9 +10,14 @@ test('starts the defender flow and exposes core views', async ({ page }) => {
   await page.goto('/');
 
   await expect(page.getByRole('heading', { name: '确认之前' })).toBeVisible();
+  await expect(page.getByText('反诈生存')).toBeVisible();
+  await expect(page.getByText('红队测试')).toBeVisible();
+  await expect(page.getByText('任务背景')).toBeVisible();
+  await page.getByRole('button', { name: '标准' }).click();
   await page.getByRole('button', { name: '开始模拟' }).click();
 
   await expect(page.getByRole('heading', { name: '消息' })).toBeVisible();
+  await expect(page.getByText('调试面板')).toHaveCount(0);
   await expect(page.getByRole('button', { name: /保研互助群/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /招生办-张老师/ })).toBeVisible();
 
@@ -49,4 +54,17 @@ test('enters emergency handling after simulated information disclosure', async (
   await expect(page.getByText('个人信息可能已泄露')).toBeVisible();
   await expect(page.getByRole('button', { name: '立即停止所有可疑操作' })).toBeVisible();
   await expect(page.getByRole('button', { name: '拨打110或咨询96110（反诈热线）' })).toBeVisible();
+  await page.getByRole('button', { name: /查看复盘报告/ }).click();
+  await expect(page.getByRole('heading', { name: '复盘报告' })).toBeVisible();
+});
+
+test('completes a safe verification path through official channels', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByRole('button', { name: '开始模拟' }).click();
+  await page.getByRole('button', { name: /官网/ }).click();
+  await page.getByRole('button', { name: /完成核实并查看复盘/ }).click();
+
+  await expect(page.getByRole('heading', { name: '复盘报告' })).toBeVisible();
+  await expect(page.getByText('个人信息可能已泄露')).toHaveCount(0);
 });

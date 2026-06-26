@@ -383,3 +383,34 @@
 
 - SupportAgent 尚未替换现有聊天 UI AgentRegistry。
 - SupportAgent 仍为规则模板实现，Gateway 接入留给后续阶段。
+
+## 阶段 8：防守模式正式交互
+
+- 读取时间：2026-06-27
+- 分支：`feat/defender-interaction`
+- 设计文档路径：`docs/智能体设计.md`
+- 设计文档哈希：`9f0d91a8f95060c5f1f892119b46b9a91330332b`
+- 本阶段对应章节：`docs/项目一阶段执行文档.md` 阶段 8；`docs/智能体设计.md` 第 2、12、27、28、40、41 节
+- 本阶段不实现的章节：Episode 持久化、完整报告逐轮解释、数据库、红队完整玩法、策略进化
+
+### 完成内容
+
+- StartScreen 新增防守/红队模式入口、难度选择和任务背景；红队入口保持禁用，不暴露未完成玩法。
+- 官网页新增“完成核实并查看复盘”正式收口动作，通过官方服务消息触发服务端状态更新和报告生成。
+- 应急页“查看复盘报告”改为直接进入报告阶段，不再提交旧事件卡硬编码动作。
+- `NarrativeDirector` 改为跨轮累计数值增量，同一回合的 intent/contact 增量会合并，满足信息递进要求。
+- 电话核实只记录核实进度，不再因后台消息自动跳转报告页，避免通话结果闪现后跳页。
+- 普通模式继续隐藏调试面板；`?debug=1` 调试面板补充 `DefenderState` 和 `TacticUse` 摘要。
+
+### 验证记录
+
+| 命令 | 结果 | 备注 |
+|---|---|---|
+| `npm run test -- tests/integration/defender-runtime.test.ts` | PASS | 覆盖聊天状态持久化、安全核实报告、旧事件技能记录 |
+| `AI_ENABLED=false AI_PROVIDER=mock npm run test:e2e -- tests/e2e/defender-smoke.spec.ts` | PASS | desktop-chromium 和 mobile-375 共 6 tests |
+| `AI_ENABLED=false AI_PROVIDER=mock npm run verify` | PASS | lint；17 files, 64 tests；Next.js build；desktop/mobile E2E 共 6 tests |
+
+### 未完成
+
+- 报告仍主要基于旧 `GameReport` 结构，逐轮 Episode 记录和 Agent 技能解释留到阶段 9。
+- SupportAgent/RiskActorAgent 尚未替换现有 UI 聊天 AgentRegistry。
