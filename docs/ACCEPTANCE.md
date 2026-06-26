@@ -12,6 +12,18 @@
 | npm run test:e2e | ✅ |
 | npm run verify | ✅ |
 
+## 阶段 2：双模式领域骨架验收
+
+| 验收项 | 预期 | 状态 |
+|--------|------|------|
+| GameMode 类型 | 支持 `defender` / `red_team` | ✅ |
+| GameDifficulty 类型 | 支持 `beginner` / `standard` / `advanced` | ✅ |
+| 统一启动 API | `POST /api/game/start` 可启动防守模式 | ✅ |
+| 旧启动 API 兼容 | `/api/session/start` 仍可启动原流程 | ✅ |
+| 红队未启用契约 | `red_team` 返回 `FEATURE_NOT_READY` | ✅ |
+| 状态隔离 | 防守会话不得包含 `redTeamState` | ✅ |
+| 原流程不回归 | 桌面和移动端冒烟 E2E 通过 | ✅ |
+
 ## v2.0 聊天系统验收
 
 | 验收项 | 预期 | 状态 |
@@ -44,7 +56,7 @@
 | 5种结局 | safe_confirmed/near_miss/info_leaked/money_lost_but_handled/fully_scammed | ✅ |
 | 应急处置阶段 | 触发submittedInfoLevel>20时进入EmergencyScreen | ✅ |
 | 复盘报告 | 含评分、时间轴、因果链、建议 | ✅ |
-| API可用性 | 8个Route Handler全部注册 | ✅ |
+| API可用性 | 9个Route Handler全部注册 | ✅ |
 | docs文档 | 4个文档文件完整 | ✅ |
 | 核心逻辑集中 | React组件不含业务判断 | ✅ |
 
@@ -128,6 +140,7 @@
 16. 确认BrowserView假表单显示"模拟输入·请勿填写真实信息"
 
 API测试：
+    POST /api/game/start {"mode":"defender","chapterId":"chapter_recommendation_001","difficulty":"beginner"}
     POST /api/session/start {"chapterId":"chapter_recommendation_001"}
     POST /api/chat/send {"sessionId":"xxx","contactId":"fake_admission","text":"我要核实身份"}
     POST /api/chat/open-contact {"sessionId":"xxx","contactId":"counselor"}

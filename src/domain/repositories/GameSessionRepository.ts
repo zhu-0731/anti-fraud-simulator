@@ -1,4 +1,5 @@
 import type { GameState } from '@/domain/types/game';
+import { assertValidGameModeState } from '@/domain/gameModes';
 
 export interface IGameSessionRepository {
   create(state: GameState): Promise<void>;
@@ -12,6 +13,7 @@ class InMemoryGameSessionRepository implements IGameSessionRepository {
   private store = new Map<string, GameState>();
 
   async create(state: GameState): Promise<void> {
+    assertValidGameModeState(state);
     this.store.set(state.sessionId, structuredClone(state));
   }
 
@@ -21,6 +23,7 @@ class InMemoryGameSessionRepository implements IGameSessionRepository {
   }
 
   async update(state: GameState): Promise<void> {
+    assertValidGameModeState(state);
     if (!this.store.has(state.sessionId)) {
       throw new Error(`Session not found: ${state.sessionId}`);
     }
