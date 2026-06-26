@@ -61,6 +61,9 @@ coverage/
 | domain/ai/gateway/MockAIProvider.ts | ✅ | Gateway Mock Provider |
 | domain/ai/gateway/schemas/EventCardSchema.ts | ✅ | Zod 运行时 Schema |
 | domain/ai/gateway/AICallLogRepository.ts | ✅ | 内存 AI 调用日志 |
+| domain/types/director.ts | ✅ | Director 输入/输出计划契约 |
+| domain/agents/director/RuleDirectorAgent.ts | ✅ | 规则 Director，输出授权技能和阶段计划 |
+| domain/agents/director/DirectorAgent.ts | ✅ | Director 包装器，主 Agent 失败时规则回退 |
 | domain/chat/IntentParser.ts | ✅ | 14意图，关键词匹配，接口预留LLM替换 |
 | domain/chat/ChatService.ts | ✅ | 意图→Agent→安全过滤→叙事→状态更新 |
 | domain/narrative/WorldState.ts | ✅ | createInitialWorldState + patchWorldState |
@@ -226,6 +229,13 @@ docs/
 - vivo 兼容调用使用 `OPENAI_COMPATIBLE_BASE_URL`、`OPENAI_COMPATIBLE_MODEL`、`OPENAI_COMPATIBLE_API_KEY`；也支持空模板变量 `VIVO_APP_ID` / `VIVO_APP_KEY`。
 - Gateway 不读取 `api_key.txt`，真实密钥只允许放本地 `.env.local`。
 - live 模型验收未执行；当前通过 Mock、非法输出、超时、限流和回退测试验证。
+
+### DirectorAgent
+
+- Director 只输出计划，不输出聊天文本。
+- `RuleDirectorAgent` 根据 `DefenderState`、玩家意图、历史 `TacticUse` 和难度选择授权技能。
+- 技能选择必须通过 `TacticRegistry.validateTacticSelection()`。
+- `DirectorAgent` 包装器用于后续 AI Director；当前主实现仍是规则 Director。
 
 ### 评分体系
 - 风险识别 35分：每个risky行动 -7分，safe/verify行动 +3分（上限+10）
