@@ -151,7 +151,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
         updatedState.phase = 'report';
       }
 
-      set({ gameState: updatedState, isChatLoading: false });
+      const latestState = get().gameState;
+      set({
+        gameState: latestState
+          ? {
+              ...updatedState,
+              activeView: latestState.activeView,
+              activeContactId: latestState.activeContactId,
+              browserState: latestState.browserState,
+              phoneState: latestState.phoneState,
+            }
+          : updatedState,
+        isChatLoading: false,
+      });
     } catch (err) {
       set({ error: String(err), isChatLoading: false });
     }
@@ -205,7 +217,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const updatedState = result.state;
       if (result.triggerEmergency) updatedState.phase = 'emergency';
       if (result.triggerReport) updatedState.phase = 'report';
-      set({ gameState: updatedState });
+      const latestState = get().gameState;
+      set({
+        gameState: latestState
+          ? {
+              ...updatedState,
+              activeView: latestState.activeView,
+              activeContactId: latestState.activeContactId,
+              browserState: latestState.browserState,
+              phoneState: latestState.phoneState,
+            }
+          : updatedState,
+      });
     } catch {
       // Narrative ticks fail silently
     }

@@ -29,6 +29,9 @@ test('starts the defender flow and exposes core views', async ({ page }) => {
   await page.getByRole('button', { name: /电话/ }).click();
   await expect(page.getByText('拨打电话')).toBeVisible();
   await expect(page.getByText('Z大招生办（官网）')).toBeVisible();
+  await page.getByRole('button', { name: '拨打Z大招生办（官网）' }).click();
+  await expect(page.getByText('通话结果')).toBeVisible();
+  await expect(page.getByText('拨打电话')).toBeVisible();
 
   await page.getByRole('button', { name: /证据/ }).click();
   await expect(page.getByText('证据收集')).toBeVisible();

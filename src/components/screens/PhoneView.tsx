@@ -113,6 +113,7 @@ export default function PhoneView() {
                 <p className="text-[11px] text-[#475569]">{opt.description}</p>
               </div>
               <button
+                aria-label={`拨打${opt.name}`}
                 onClick={() => handleCall(opt)}
                 disabled={callingId !== null}
                 className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
