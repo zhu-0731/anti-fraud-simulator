@@ -33,7 +33,7 @@ export default function EvidenceView() {
             <span className="text-4xl">📋</span>
             <p className="text-[#475569] text-sm">还没有收集到证据</p>
             <p className="text-[10px] text-[#334155] max-w-xs">
-              在聊天中说"我要截图保存"或"帮我保存证据"，可以收集关键证据
+              在聊天中说“我要截图保存”或“帮我保存证据”，可以收集关键证据
             </p>
           </div>
         ) : (

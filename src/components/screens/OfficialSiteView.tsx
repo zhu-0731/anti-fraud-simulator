@@ -30,7 +30,7 @@ export default function OfficialSiteView() {
         <div className="bg-[#0F766E]/10 border border-[#0F766E]/30 rounded-xl p-4">
           <p className="text-xs font-semibold text-[#34D399] mb-2">官方声明</p>
           <p className="text-xs text-[#A7F3D0] leading-relaxed">
-            Z大学研究生院是唯一官方录取信息发布渠道。所有录取确认操作均通过官网完成，全程免费。任何以"招生办"名义索要费用或私信要求提交信息的行为均属诈骗。
+            Z大学研究生院是唯一官方录取信息发布渠道。所有录取确认操作均通过官网完成，全程免费。任何以“招生办”名义索要费用或私信要求提交信息的行为均属诈骗。
           </p>
         </div>
 

@@ -32,33 +32,10 @@ const DEFAULT_PAGE = {
 export default function BrowserView() {
   const { gameState, setActiveView } = useGameStore();
   const [urlInput, setUrlInput] = useState('');
-  const [countdownSec, setCountdownSec] = useState<number | null>(null);
 
   const browserState = gameState?.browserState;
   const currentUrl = browserState?.url ?? '';
   const page = FAKE_PAGES[currentUrl] ?? DEFAULT_PAGE;
-
-  useEffect(() => {
-    const fakePage = FAKE_PAGES[currentUrl];
-    if (fakePage?.countdown) {
-      setCountdownSec(fakePage.countdown);
-    }
-  }, [currentUrl]);
-
-  useEffect(() => {
-    if (countdownSec === null || countdownSec <= 0) return;
-    const timer = setInterval(() => {
-      setCountdownSec((s) => (s !== null && s > 0 ? s - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [countdownSec]);
-
-  const formatCountdown = (sec: number) => {
-    const h = Math.floor(sec / 3600);
-    const m = Math.floor((sec % 3600) / 60);
-    const s = sec % 60;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
 
   return (
     <div className="flex flex-col flex-1 bg-[#07111F] overflow-hidden">
@@ -106,14 +83,7 @@ export default function BrowserView() {
         ) : (
           <>
             {/* Countdown */}
-            {countdownSec !== null && countdownSec > 0 && (
-              <div className="mb-4 p-3 rounded-xl bg-[#B91C1C]/10 border border-[#B91C1C]/30 text-center">
-                <p className="text-xs text-[#94A3B8] mb-1">⏳ 录取确认截止倒计时</p>
-                <p className="text-2xl font-mono font-bold text-[#F87171]">
-                  {formatCountdown(countdownSec)}
-                </p>
-              </div>
-            )}
+            {page.countdown && <Countdown key={currentUrl} initialSeconds={page.countdown} />}
 
             {/* Page body */}
             <div className="bg-[#0B1728] rounded-xl border border-[#1E293B] p-4 mb-4">
@@ -165,7 +135,7 @@ export default function BrowserView() {
                 <ul className="space-y-1 list-disc pl-4">
                   <li>录取确认全程免费，无需缴纳任何押金</li>
                   <li>官方不会通过私信要求提交身份证或密码</li>
-                  <li>如收到非本页面的"确认通知"，请致电招办核实</li>
+                  <li>如收到非本页面的“确认通知”，请致电招办核实</li>
                   <li>招办电话：010-XXXX-XXXX（模拟）</li>
                 </ul>
               </div>
@@ -173,6 +143,34 @@ export default function BrowserView() {
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+function Countdown({ initialSeconds }: { initialSeconds: number }) {
+  const [seconds, setSeconds] = useState(initialSeconds);
+
+  useEffect(() => {
+    if (seconds <= 0) return;
+    const timer = setInterval(() => {
+      setSeconds((current) => (current > 0 ? current - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [seconds]);
+
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  const formatted = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s
+    .toString()
+    .padStart(2, '0')}`;
+
+  if (seconds <= 0) return null;
+
+  return (
+    <div className="mb-4 p-3 rounded-xl bg-[#B91C1C]/10 border border-[#B91C1C]/30 text-center">
+      <p className="text-xs text-[#94A3B8] mb-1">⏳ 录取确认截止倒计时</p>
+      <p className="text-2xl font-mono font-bold text-[#F87171]">{formatted}</p>
     </div>
   );
 }

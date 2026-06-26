@@ -7,7 +7,7 @@ export class SeniorAgent extends MockAgent {
   readonly displayName = '学长（赵某）';
   readonly role = '已录取学长，分享经验但信息不一定准确';
 
-  protected responseMap(_input: AgentResponseInput): AgentResponseMap {
+  protected responseMap(): AgentResponseMap {
     const me = this.displayName;
     return {
       ask_verification: () => [

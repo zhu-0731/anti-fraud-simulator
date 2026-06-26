@@ -9,7 +9,7 @@ export class GroupAgent extends MockAgent {
   readonly displayName = '保研交流群';
   readonly role = '多名同学，信息真假混杂';
 
-  protected responseMap(_input: AgentResponseInput): AgentResponseMap {
+  protected responseMap(): AgentResponseMap {
     return {
       ask_verification: () => [
         msg(GROUP_MEMBERS[1], '我去官网看了，官网说全程免费，没有押金这回事。'),

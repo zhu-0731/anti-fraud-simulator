@@ -7,7 +7,7 @@ export class MomAgent extends MockAgent {
   readonly displayName = '妈妈';
   readonly role = '家长，关心子女但容易被社交媒体误导';
 
-  protected responseMap(input: AgentResponseInput): AgentResponseMap {
+  protected responseMap(): AgentResponseMap {
     const me = this.displayName;
     return {
       ask_verification: () => [

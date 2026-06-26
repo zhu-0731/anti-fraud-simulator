@@ -47,7 +47,7 @@ export class AntiFraudAgent extends MockAgent {
     };
   }
 
-  protected defaultDelayedConsequences(_input: AgentResponseInput): DelayedConsequence[] {
+  protected defaultDelayedConsequences(): DelayedConsequence[] {
     return [];
   }
 

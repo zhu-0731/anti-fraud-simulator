@@ -1,4 +1,4 @@
-import type { AgentResponseInput, AgentResponseMessage, DelayedConsequence } from '@/domain/types/chat';
+import type { AgentResponseMessage, DelayedConsequence } from '@/domain/types/chat';
 import { MockAgent, AgentResponseMap, msg, pick } from './BaseAgent';
 
 export class OfficialSiteAgent extends MockAgent {
@@ -6,7 +6,7 @@ export class OfficialSiteAgent extends MockAgent {
   readonly displayName = 'Z大研究生院（官方）';
   readonly role = '官方服务号，提供正式核验路径';
 
-  protected responseMap(_input: AgentResponseInput): AgentResponseMap {
+  protected responseMap(): AgentResponseMap {
     const me = this.displayName;
     return {
       ask_verification: () => [
@@ -47,7 +47,7 @@ export class OfficialSiteAgent extends MockAgent {
     };
   }
 
-  protected defaultDelayedConsequences(_input: AgentResponseInput): DelayedConsequence[] {
+  protected defaultDelayedConsequences(): DelayedConsequence[] {
     return [];
   }
 

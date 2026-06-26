@@ -87,7 +87,7 @@ export interface ParsedIntent {
  *   async parseIntent(text: string, context?: IntentContext): Promise<ParsedIntent>
  */
 export class IntentParser {
-  parseIntent(inputText: string, _context?: Record<string, unknown>): ParsedIntent {
+  parseIntent(inputText: string): ParsedIntent {
     const text = inputText.toLowerCase().trim();
     if (!text) return { intent: 'small_talk', confidence: 'low', matchedKeywords: [] };
 

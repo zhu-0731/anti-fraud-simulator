@@ -1,5 +1,5 @@
 import type { GameState, Evidence } from '@/domain/types/game';
-import type { ChatMessage, SystemNotification, Contact } from '@/domain/types/chat';
+import type { ChatMessage, SystemNotification } from '@/domain/types/chat';
 import { intentParser } from './IntentParser';
 import { getAgent } from '@/domain/agents/AgentRegistry';
 import { narrativeDirector } from '@/domain/narrative/NarrativeDirector';

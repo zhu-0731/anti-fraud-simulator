@@ -1,5 +1,5 @@
 import type { AIEventProvider } from './AIEventProvider';
-import type { AIEventGenerationInput, AIEventOutput } from '@/domain/types/ai';
+import type { AIEventOutput } from '@/domain/types/ai';
 
 /**
  * LangGraph integration stub.
@@ -36,15 +36,15 @@ import type { AIEventGenerationInput, AIEventOutput } from '@/domain/types/ai';
 export class LangGraphEventProvider implements AIEventProvider {
   name = 'langgraph';
 
-  async generateEvent(_input: AIEventGenerationInput): Promise<AIEventOutput> {
+  async generateEvent(): Promise<AIEventOutput> {
     // TODO: Replace with actual LangGraph graph invocation:
     //
     // const graph = await buildAntiFraudGraph();
     // const result = await graph.invoke({
-    //   sessionId: _input.sessionId,
-    //   teachingGoal: _input.teachingGoal,
-    //   currentRiskScore: _input.currentRiskScore,
-    //   flags: _input.flags,
+    //   sessionId: input.sessionId,
+    //   teachingGoal: input.teachingGoal,
+    //   currentRiskScore: input.currentRiskScore,
+    //   flags: input.flags,
     // });
     // return result.eventOutput;
 

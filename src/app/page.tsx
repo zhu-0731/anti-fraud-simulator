@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import DesktopLayout from '@/components/layout/DesktopLayout';
 import StartScreen from '@/components/screens/StartScreen';
@@ -69,12 +69,14 @@ export default function Home() {
   const phase = gameState?.phase ?? 'start';
 
   return (
-    <DesktopLayout>
-      {phase === 'start' && <StartScreen />}
-      {phase === 'profile' && <ProfileScreen />}
-      {phase === 'playing' && <PlayingView />}
-      {phase === 'emergency' && <EmergencyScreen />}
-      {phase === 'report' && <ReportScreen />}
-    </DesktopLayout>
+    <Suspense fallback={null}>
+      <DesktopLayout>
+        {phase === 'start' && <StartScreen />}
+        {phase === 'profile' && <ProfileScreen />}
+        {phase === 'playing' && <PlayingView />}
+        {phase === 'emergency' && <EmergencyScreen />}
+        {phase === 'report' && <ReportScreen />}
+      </DesktopLayout>
+    </Suspense>
   );
 }

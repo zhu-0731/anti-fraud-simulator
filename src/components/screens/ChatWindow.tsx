@@ -12,7 +12,7 @@ const QUICK_SUGGESTIONS: string[] = [
   '麻烦你帮我确认一下',
 ];
 
-function ChatBubble({ msg, playerName }: { msg: ChatMessage; playerName: string }) {
+function ChatBubble({ msg }: { msg: ChatMessage }) {
   const isPlayer = msg.sender === 'player';
   const isSystem = msg.sender === 'system';
 
@@ -123,7 +123,7 @@ export default function ChatWindow() {
       {/* Messages */}
       <div className="min-h-0 flex-1 overflow-y-auto py-3">
         {messages.map((msg) => (
-          <ChatBubble key={msg.id} msg={msg} playerName={gameState.playerProfile.name} />
+          <ChatBubble key={msg.id} msg={msg} />
         ))}
         {isChatLoading && (
           <div className="flex gap-2 px-4 mb-3">

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useSearchParams } from 'next/navigation';
 import MobileFrame from './MobileFrame';
 import { useGameStore } from '@/store/gameStore';
 
@@ -10,12 +11,8 @@ interface DesktopLayoutProps {
 
 export default function DesktopLayout({ children }: DesktopLayoutProps) {
   const { gameState } = useGameStore();
-  const [showDebug, setShowDebug] = useState(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setShowDebug(params.get('debug') === '1');
-  }, []);
+  const searchParams = useSearchParams();
+  const showDebug = searchParams.get('debug') === '1';
 
   return (
     <div className="h-screen w-full overflow-hidden flex items-start justify-center bg-[#030B15]">

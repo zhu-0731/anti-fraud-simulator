@@ -1,4 +1,4 @@
-import type { AgentResponseInput, AgentResponseMessage, DelayedConsequence } from '@/domain/types/chat';
+import type { AgentResponseMessage, DelayedConsequence } from '@/domain/types/chat';
 import { MockAgent, AgentResponseMap, msg, pick } from './BaseAgent';
 
 export class CounselorAgent extends MockAgent {
@@ -6,7 +6,7 @@ export class CounselorAgent extends MockAgent {
   readonly displayName = '王老师（辅导员）';
   readonly role = '辅导员，可靠权威，引导学生走官方渠道';
 
-  protected responseMap(_input: AgentResponseInput): AgentResponseMap {
+  protected responseMap(): AgentResponseMap {
     const me = this.displayName;
     return {
       ask_verification: () => [
@@ -52,7 +52,7 @@ export class CounselorAgent extends MockAgent {
     };
   }
 
-  protected defaultDelayedConsequences(_input: AgentResponseInput): DelayedConsequence[] {
+  protected defaultDelayedConsequences(): DelayedConsequence[] {
     return [];
   }
 
