@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { gameSessionRepository } from '@/domain/repositories/GameSessionRepository';
-import { chatService } from '@/domain/chat/ChatService';
+import { defenderGameService } from '@/domain/defender/DefenderGameService';
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,20 +10,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing sessionId or contactId' }, { status: 400 });
     }
 
-    const state = await gameSessionRepository.findById(sessionId);
-    if (!state) {
-      return NextResponse.json({ error: `Session not found: ${sessionId}` }, { status: 404 });
-    }
-
-    const updatedState = chatService.openContact(state, contactId);
-    await gameSessionRepository.update(updatedState);
+    const result = await defenderGameService.openContact(sessionId, contactId);
 
     return NextResponse.json({
-      state: updatedState,
-      chatHistory: updatedState.chatHistories[contactId] ?? [],
+      state: result.state,
+      chatHistory: result.chatHistory,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    const status = message.startsWith('Session not found:') ? 404 : 500;
+    return NextResponse.json({ error: message }, { status });
   }
 }

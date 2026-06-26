@@ -4,6 +4,7 @@ import { narrativeDirector } from '@/domain/narrative/NarrativeDirector';
 import { patchWorldState } from '@/domain/narrative/WorldState';
 import { generateId } from '@/lib/id';
 import type { SystemNotification } from '@/domain/types/chat';
+import { defenderGameService } from '@/domain/defender/DefenderGameService';
 
 export async function POST(req: NextRequest) {
   try {
@@ -67,13 +68,13 @@ export async function POST(req: NextRequest) {
 
     const updatedWorldState = patchWorldState(state.worldState, tickResult.updatedWorldState);
 
-    const updatedState = {
+    const updatedState = defenderGameService.syncDefenderState({
       ...state,
       worldState: updatedWorldState,
       contacts: updatedContacts,
       chatHistories: updatedChatHistories,
       notifications: updatedNotifications,
-    };
+    });
 
     await gameSessionRepository.update(updatedState);
 

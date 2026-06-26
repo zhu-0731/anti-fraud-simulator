@@ -36,3 +36,17 @@ test('starts the defender flow and exposes core views', async ({ page }) => {
   await page.getByRole('button', { name: /证据/ }).click();
   await expect(page.getByText('证据收集')).toBeVisible();
 });
+
+test('enters emergency handling after simulated information disclosure', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByRole('button', { name: '开始模拟' }).click();
+  await page.getByRole('button', { name: /招生办-张老师/ }).click();
+  await page.getByPlaceholder('输入消息…').fill('我来提交信息');
+  await page.getByRole('button', { name: '↑' }).click();
+
+  await expect(page.getByText('紧急处置')).toBeVisible();
+  await expect(page.getByText('个人信息可能已泄露')).toBeVisible();
+  await expect(page.getByRole('button', { name: '立即停止所有可疑操作' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '拨打110或咨询96110（反诈热线）' })).toBeVisible();
+});

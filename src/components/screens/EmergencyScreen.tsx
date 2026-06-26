@@ -4,14 +4,17 @@ import { useGameStore } from '@/store/gameStore';
 import StatusBar from '@/components/game/StatusBar';
 import ActionPanel from '@/components/game/ActionPanel';
 import type { EventCard } from '@/domain/types/game';
+import { chapter01Events } from '@/data/chapter01';
 
 export default function EmergencyScreen() {
   const { gameState, currentEvent, submitAction, isLoading, feedback } = useGameStore();
 
   if (!gameState) return null;
 
-  // Use E11 event actions if available
-  const emergencyEvent = currentEvent as EventCard | null;
+  const emergencyEvent =
+    currentEvent?.id === 'E11'
+      ? (currentEvent as EventCard)
+      : (chapter01Events.find((event) => event.id === 'E11') ?? (currentEvent as EventCard | null));
 
   return (
     <div className="flex flex-col min-h-[100svh] bg-[#07111F]">

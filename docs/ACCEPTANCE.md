@@ -38,6 +38,19 @@
 | 旧事件映射 | E01-E12 和 Mock 事件无未知旧标签 | ✅ |
 | 旧字段保留 | `pressureTypes/riskSignals/safeActions/actions` 未删除 | ✅ |
 
+## 阶段 4：规则型防守运行时验收
+
+| 验收项 | 预期 | 状态 |
+|--------|------|------|
+| Rule 模式不依赖 LLM | `AI_ENABLED=false` 下 E2E 通过 | ✅ |
+| DefenderStateReducer | 确定性更新并裁剪 0-100 数值 | ✅ |
+| DefenderRuleEngine | 聊天回合记录 `TacticUse` | ✅ |
+| 旧事件卡兼容 | 事件卡行动也记录 `TacticUse` | ✅ |
+| 防守应用服务 | 聊天 API route 通过 `DefenderGameService` 写回状态 | ✅ |
+| 安全路径 E2E | 桌面和移动端冒烟路径通过 | ✅ |
+| 风险路径 E2E | 提交模拟信息后进入应急阶段 | ✅ |
+| 应急动作可用 | 聊天触发应急后展示 E11 处置动作 | ✅ |
+
 ## v2.0 聊天系统验收
 
 | 验收项 | 预期 | 状态 |
