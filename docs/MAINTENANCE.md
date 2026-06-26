@@ -263,6 +263,14 @@ docs/
 - `NarrativeDirector` 的 intent/contact 数值变更按增量累计；不要在交互阶段改回覆盖语义。
 - 普通玩家界面不得显示 `WorldState`、`DefenderState`、`TacticUse`、技能标签或 DirectorPlan；这些只能在 `?debug=1` 调试面板出现。
 
+### Reporting and Episode Log
+
+- `ReportBuilder` 位于 `src/domain/reporting/ReportBuilder.ts`，只从已记录的 `GameState`、聊天消息、事件行动和 `TacticUse` 构建解释。
+- `TurnLogRepository` 当前为内存实现，但已经定义 `ITurnLogRepository`，后续数据库迁移应保持接口稳定。
+- `EpisodeTurn` 必须保留 `messageId`、`actionId` 或 `turnId` 中至少一个可追溯引用。
+- `ScoringService` 和 `EndingService` 仍是分数/结局唯一来源；报告构建器和未来 ReportAgent 不得改分。
+- `EpisodeReview` 是用户可见报告区块，修改报告字段时要同步更新 E2E 断言。
+
 ### 评分体系
 - 风险识别 35分：每个risky行动 -7分，safe/verify行动 +3分（上限+10）
 - 核验路径 25分：官方核验+15，辅导员确认+5，官网检查+5

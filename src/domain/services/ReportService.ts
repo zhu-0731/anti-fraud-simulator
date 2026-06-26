@@ -3,6 +3,8 @@ import type { GameReport, TimelineEntry, TurningPoint, TrustChainAnalysis } from
 import { scoringService } from './ScoringService';
 import { endingService } from './EndingService';
 import { chapterRepository } from '@/domain/repositories/ChapterRepository';
+import { reportBuilder } from '@/domain/reporting/ReportBuilder';
+import { turnLogRepository } from '@/domain/repositories/TurnLogRepository';
 
 const ADVICE_BY_ENDING: Record<string, string[]> = {
   safe_confirmed: [
@@ -62,6 +64,8 @@ export class ReportService {
     const trustChainAnalysis = this.buildTrustChainAnalysis(state);
     const pressureChainSummary = this.buildPressureChainSummary(state);
     const recoveryEvaluation = this.buildRecoveryEvaluation(state);
+    const defenderReport = reportBuilder.build(state);
+    await turnLogRepository.saveEpisode(defenderReport.episode);
 
     return {
       sessionId: state.sessionId,
@@ -82,6 +86,12 @@ export class ReportService {
       trustChainAnalysis,
       pressureChainSummary,
       recoveryEvaluation,
+      episode: defenderReport.episode,
+      aiTacticSummary: defenderReport.aiTacticSummary,
+      firstOfficialVerificationTurnId: defenderReport.firstOfficialVerificationTurnId,
+      contradictionSummary: defenderReport.contradictionSummary,
+      informationLeakSummary: defenderReport.informationLeakSummary,
+      emergencyEvaluation: defenderReport.emergencyEvaluation,
     };
   }
 
