@@ -41,7 +41,9 @@ coverage/
 | 模块 | 状态 | 说明 |
 |------|------|------|
 | domain/types/chat.ts | ✅ | Contact, ChatMessage, WorldState, PlayerIntent (v2) |
-| domain/types/game.ts | ✅ | GameState含聊天系统字段 (v2) |
+| domain/types/game.ts | ✅ | GameState含聊天系统字段和双模式骨架 |
+| domain/types/defender.ts | ✅ | NarrativeStage 类型 |
+| domain/gameModes.ts | ✅ | GameMode/Difficulty 归一化、防守/红队状态初始化与隔离校验 |
 | domain/types/report.ts | ✅ | 含因果链字段 (v2) |
 | domain/chat/IntentParser.ts | ✅ | 14意图，关键词匹配，接口预留LLM替换 |
 | domain/chat/ChatService.ts | ✅ | 意图→Agent→安全过滤→叙事→状态更新 |
@@ -60,7 +62,9 @@ coverage/
 | API /api/chat/send | ✅ | 聊天消息发送 |
 | API /api/chat/open-contact | ✅ | 打开联系人，清除未读 |
 | API /api/narrative/tick | ✅ | 后台叙事推进 |
+| API /api/game/start | ✅ | 统一启动入口；防守可运行，红队返回未启用契约 |
 | GameEngine.startSession | ✅ | 初始化7个联系人+WorldState+聊天记录 |
+| GameStartService | ✅ | 统一启动服务，保留旧防守流程兼容 |
 | ReportService | ✅ | 含因果链、转折点、信任链分析 |
 | gameStore | ✅ | sendMessage/openContact/setActiveView/narrativeTick |
 | apiClient | ✅ | sendMessage/openContact/narrativeTick |
@@ -168,12 +172,20 @@ docs/
 ## 核心逻辑说明
 
 ### 事件流转
-1. `GameEngine.startSession` 创建会话，从ChapterRepository获取第一个事件
-2. `GameEngine.handleAction` 接收玩家行动
-3. `GameEngine.applyActionEffects` 更新GameState（风险值、焦虑值、标记、证据等）
-4. `EventSelectionService.getNextEventByRules` 根据动作结果和规则选择下一个事件
-5. 如果触发了info泄露或资金损失，自动切换到emergency阶段
-6. 最终切换到report阶段，调用ReportService生成报告
+1. `GameStartService.startGame` 接收统一启动请求；防守模式委托 `GameEngine.startSession`，红队模式返回 `FEATURE_NOT_READY`
+2. `GameEngine.startSession` 创建防守会话，从ChapterRepository获取第一个事件
+3. `GameEngine.handleAction` 接收玩家行动
+4. `GameEngine.applyActionEffects` 更新GameState（风险值、焦虑值、标记、证据等）
+5. `EventSelectionService.getNextEventByRules` 根据动作结果和规则选择下一个事件
+6. 如果触发了info泄露或资金损失，自动切换到emergency阶段
+7. 最终切换到report阶段，调用ReportService生成报告
+
+### 双模式骨架
+
+- `GameMode` 当前支持 `defender` 和 `red_team`。
+- `GameDifficulty` 当前支持 `beginner`、`standard`、`advanced`。
+- 防守会话写入 `GameSessionRepository` 前会执行运行时校验，防止混入 `redTeamState`。
+- 红队模式当前只返回 `FEATURE_NOT_READY` 合同和空 `RedTeamState`，完整红队玩法不得在阶段 10 前提前实现。
 
 ### 评分体系
 - 风险识别 35分：每个risky行动 -7分，safe/verify行动 +3分（上限+10）

@@ -5,6 +5,63 @@ export type GamePhase =
   | 'emergency'
   | 'report';
 
+export type GameMode = 'defender' | 'red_team';
+
+export type GameDifficulty = 'beginner' | 'standard' | 'advanced';
+
+export type FeatureNotReadyCode = 'FEATURE_NOT_READY';
+
+export interface DefenderState {
+  narrativeStage: import('./defender').NarrativeStage;
+  exposure: {
+    suspiciousLink: number;
+    unverifiedIdentity: number;
+    informationRequest: number;
+    paymentRequest: number;
+  };
+  defense: {
+    officialVerification: number;
+    evidenceAwareness: number;
+    contradictionAwareness: number;
+    helpSeeking: number;
+  };
+  pressure: {
+    deadline: number;
+    authority: number;
+    social: number;
+    emotional: number;
+  };
+  consequences: {
+    informationLeakLevel: number;
+    simulatedMoneyLoss: number;
+    accountRiskLevel: number;
+  };
+  discoveredFacts: string[];
+  discoveredContradictions: string[];
+  hiddenRiskSignals: string[];
+  activeRiskActorIds: string[];
+  triggeredStages: import('./defender').NarrativeStage[];
+}
+
+export interface RedTeamState {
+  mode: 'red_team';
+  sessionId: string;
+  difficulty: GameDifficulty;
+  scenarioId: string;
+  status: 'not_ready';
+  selectedTactics: string[];
+  selectedRole: string | null;
+  selectedChannel: string | null;
+  turnCount: number;
+}
+
+export interface FeatureNotReadyResponse {
+  code: FeatureNotReadyCode;
+  mode: 'red_team';
+  message: string;
+  state: RedTeamState;
+}
+
 export type EndingType =
   | 'safe_confirmed'
   | 'near_miss'
@@ -126,6 +183,8 @@ export interface ActionRecord {
 
 export interface GameState {
   sessionId: string;
+  mode: 'defender';
+  difficulty: GameDifficulty;
   phase: GamePhase;
   chapterId: string;
   currentEventId: string;
@@ -155,4 +214,9 @@ export interface GameState {
   browserState: import('./chat').BrowserState | null;
   phoneState: import('./chat').PhoneState;
   notifications: import('./chat').SystemNotification[];
+
+  // Formal defender-mode state skeleton. Existing v2 chat/world fields remain
+  // the compatibility runtime until the rule engine is migrated in stage 4.
+  defenderState: DefenderState;
+  redTeamState?: never;
 }

@@ -1,4 +1,4 @@
-import type { GameState, EventCard } from '@/domain/types/game';
+import type { GameState, EventCard, GameDifficulty, GameMode } from '@/domain/types/game';
 import type { ChatMessage, SystemNotification } from '@/domain/types/chat';
 import type { GameReport } from '@/domain/types/report';
 import type { AIEventOutput } from '@/domain/types/ai';
@@ -27,6 +27,7 @@ async function get<T>(path: string): Promise<T> {
 
 export interface StartSessionResponse {
   sessionId: string;
+  mode?: GameMode;
   state: GameState;
   firstEvent: EventCard;
 }
@@ -67,8 +68,11 @@ export interface NarrativeTickResponse {
 }
 
 export const apiClient = {
-  startSession(chapterId: string): Promise<StartSessionResponse> {
-    return post('/api/session/start', { chapterId });
+  startSession(
+    chapterId: string,
+    difficulty: GameDifficulty = 'beginner',
+  ): Promise<StartSessionResponse> {
+    return post('/api/game/start', { mode: 'defender', chapterId, difficulty });
   },
 
   getGameState(sessionId: string): Promise<GameStateResponse> {

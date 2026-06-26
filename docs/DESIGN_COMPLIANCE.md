@@ -16,3 +16,8 @@
 | 浏览器日志抓取 | 基础完成 | 已有 `tests/e2e/fixtures/logged-test.ts` |
 | 结构化服务端日志 | 未完成 | 无统一 logger |
 | `OpenAICompatibleEventProvider` 定位 | 部分符合 | 仅作为历史遗留实验原型，不是正式 AI Gateway |
+| GameMode | 基础完成 | 已新增 `defender` / `red_team` 类型 |
+| GameDifficulty | 基础完成 | 已新增 `beginner` / `standard` / `advanced` 类型 |
+| 统一启动 API | 基础完成 | 已新增 `POST /api/game/start`，旧 `/api/session/start` 保持兼容 |
+| 防守/红队状态隔离 | 基础完成 | 防守仓储写入时校验不得包含 `redTeamState`，红队只返回未启用契约 |
+| 红队模式完整玩法 | 未完成 | 本阶段明确不实现，仅保留 `FEATURE_NOT_READY` 合同 |

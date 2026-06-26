@@ -1,4 +1,4 @@
-import type { GameState, EventCard, PlayerAction, Evidence, ActionRecord, Message } from '@/domain/types/game';
+import type { GameState, EventCard, PlayerAction, Evidence, ActionRecord, Message, GameDifficulty } from '@/domain/types/game';
 import type { Contact, ChatMessage } from '@/domain/types/chat';
 import { gameSessionRepository } from '@/domain/repositories/GameSessionRepository';
 import { chapterRepository } from '@/domain/repositories/ChapterRepository';
@@ -9,6 +9,7 @@ import { generateId } from '@/lib/id';
 import { clamp } from '@/lib/clamp';
 import { createInitialWorldState } from '@/domain/narrative/WorldState';
 import { getAllAgents } from '@/domain/agents/AgentRegistry';
+import { createInitialDefenderState } from '@/domain/gameModes';
 
 export interface StartSessionResult {
   sessionId: string;
@@ -23,7 +24,10 @@ export interface HandleActionResult {
 }
 
 export class GameEngine {
-  async startSession(chapterId: string): Promise<StartSessionResult> {
+  async startSession(
+    chapterId: string,
+    difficulty: GameDifficulty = 'beginner',
+  ): Promise<StartSessionResult> {
     const sessionId = generateId('session');
     const firstEvent = await chapterRepository.getFirstEvent(chapterId);
     if (!firstEvent) throw new Error(`Chapter not found: ${chapterId}`);
@@ -61,6 +65,8 @@ export class GameEngine {
 
     const state: GameState = {
       sessionId,
+      mode: 'defender',
+      difficulty,
       phase: 'playing',
       chapterId,
       currentEventId: firstEvent.id,
@@ -87,6 +93,7 @@ export class GameEngine {
       browserState: null,
       phoneState: { isCalling: false, calledContactId: null, callType: null, callResult: null },
       notifications: [],
+      defenderState: createInitialDefenderState(),
     };
 
     await gameSessionRepository.create(state);
