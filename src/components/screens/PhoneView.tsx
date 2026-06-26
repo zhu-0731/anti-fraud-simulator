@@ -21,17 +21,24 @@ const CALL_OPTIONS: PhoneOption[] = [
   },
   {
     id: 'official_admissions',
-    name: 'Z大招生办（官网公布）',
+    name: 'Z大招生办（官网）',
     number: '010-XXXX-XXXX',
     type: 'official',
     description: '工作日 8:30–17:00',
   },
+  // {
+  //   id: 'fake_teacher_phone',
+  //   name: '张老师提供的电话',
+  //   number: '138-XXXX-XXXX',
+  //   type: 'suspicious',
+  //   description: '⚠️ 非官方公布号码，存在风险',
+  // },
   {
     id: 'fake_teacher_phone',
-    name: '"张老师"提供的电话',
+    name: '张老师提供的电话',
     number: '138-XXXX-XXXX',
     type: 'suspicious',
-    description: '⚠️ 非官方公布号码，存在风险',
+    description: '',
   },
 ];
 
@@ -98,7 +105,7 @@ export default function PhoneView() {
                       ? 'bg-[#0F766E]/20 text-[#34D399]'
                       : 'bg-[#B45309]/20 text-[#F59E0B]'
                   }`}>
-                    {opt.type === 'official' ? '官方' : '可疑'}
+                    {opt.type === 'official' ? '官方' : '未知'}
                   </span>
                   <span className="text-sm font-medium text-[#E2E8F0]">{opt.name}</span>
                 </div>
