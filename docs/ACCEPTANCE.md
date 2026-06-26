@@ -23,6 +23,9 @@
 | 红队未启用契约 | `red_team` 返回 `FEATURE_NOT_READY` | ✅ |
 | 状态隔离 | 防守会话不得包含 `redTeamState` | ✅ |
 | 原流程不回归 | 桌面和移动端冒烟 E2E 通过 | ✅ |
+| 红队 Agent 契约 | Victim/Judge/Turn/BlindSpot 类型已定义 | ✅ |
+| Victim 盲输入 | 不包含玩家选中的技能标签 | ✅ |
+| Judge 输入隔离 | Judge 使用证据 turns 与候选 TacticUse，不复用 Victim 输入 | ✅ |
 
 ## 阶段 3：技能、角色和渠道领域模型验收
 
@@ -174,6 +177,7 @@
 | 证据可追溯 | 报告条目引用 messageId/actionId/turnId | ✅ |
 | 首次官方核实 | 报告记录 firstOfficialVerificationTurnId | ✅ |
 | 泄露与应急评价 | 报告显示信息泄露和应急处置状态 | ✅ |
+| EpisodeTurn mode | 支持 defender / red_team | ✅ |
 
 ---
 

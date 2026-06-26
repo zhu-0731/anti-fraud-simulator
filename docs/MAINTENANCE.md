@@ -271,6 +271,14 @@ docs/
 - `ScoringService` 和 `EndingService` 仍是分数/结局唯一来源；报告构建器和未来 ReportAgent 不得改分。
 - `EpisodeReview` 是用户可见报告区块，修改报告字段时要同步更新 E2E 断言。
 
+### Red-Team Readiness
+
+- 红队契约类型位于 `src/domain/types/redTeam.ts`。
+- `VictimAgentInput` 只能包含可见消息和公开上下文，不能加入 `selectedTactics`、Judge 结果或隐藏防守状态。
+- `JudgeAgentInput` 可以接收证据 turn 和候选 `TacticUse`，但不得直接修改状态或决定最终总分。
+- `RedTeamGameService` 当前只返回 `not_ready`，不得在未进入后续阶段前实现完整红队玩法。
+- `AIProviderRequest` 已预留 `victim_response` / `judge_evaluation` task；现有 Provider 仍只实现 `generate_event`。
+
 ### 评分体系
 - 风险识别 35分：每个risky行动 -7分，safe/verify行动 +3分（上限+10）
 - 核验路径 25分：官方核验+15，辅导员确认+5，官网检查+5
