@@ -1,5 +1,3 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import type { AIEventProvider } from './AIEventProvider';
 import type { AIEventGenerationInput, AIEventOutput } from '@/domain/types/ai';
@@ -96,27 +94,6 @@ function normalizeBaseUrl(url: string): string {
 function getApiKey(): string | null {
   const envKey = process.env.OPENAI_COMPATIBLE_API_KEY ?? process.env.OPENAI_API_KEY;
   if (envKey?.trim()) return envKey.trim();
-
-  if (process.env.NODE_ENV === 'production') return null;
-
-  const candidates = [
-    resolve(process.cwd(), '..', 'api_key.txt'),
-    resolve(process.cwd(), 'api_key.txt'),
-  ];
-  for (const file of candidates) {
-    if (!existsSync(file)) continue;
-    const key = readFileSync(file, 'utf8')
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((line) => {
-        const equalIndex = line.indexOf('=');
-        return equalIndex >= 0 ? line.slice(equalIndex + 1).trim() : line;
-      })
-      .sort((a, b) => b.length - a.length)[0];
-    if (key) return key;
-  }
-
   return null;
 }
 

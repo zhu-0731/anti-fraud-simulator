@@ -108,7 +108,7 @@ OPENAI_COMPATIBLE_API_KEY=your_AppKey
 
 说明：
 - `OPENAI_COMPATIBLE_API_KEY` 优先，其次读取 `OPENAI_API_KEY`。
-- 本地开发时，如果环境变量不存在，会尝试读取项目外层的 `../api_key.txt`，只作为本地便利方案。
+- 密钥只从环境变量读取，推荐放在本地 `.env.local`；不要提交真实密钥。
 - `OPENAI_COMPATIBLE_BASE_URL` 可以替换为其他支持 OpenAI Chat Completions 风格的服务地址。
 - 请求会自动附带 `request_id` 查询参数，兼容 vivo 文档要求。
 - 生成结果必须解析为 `EventCard` JSON，并继续经过 `SafetyFilterService` 过滤。

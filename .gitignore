@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # local secrets
 api_key.txt
@@ -39,6 +40,14 @@ api_key.txt
 *.key
 *.secret
 *.token
+
+# test and runtime artifacts
+coverage/
+test-results/
+playwright-report/
+artifacts/
+logs/
+*.log
 
 # vercel
 .vercel
