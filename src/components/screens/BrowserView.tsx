@@ -4,6 +4,22 @@ import { useState, useEffect } from 'react';
 import { useGameStore } from '@/store/gameStore';
 
 const FAKE_PAGES: Record<string, { title: string; isOfficial: boolean; hasFakeForm: boolean; countdown?: number }> = {
+  'game-simulated-link.local/video123': {
+    title: '保研录取确认短视频',
+    isOfficial: false,
+    hasFakeForm: false,
+  },
+  'game-simulated-link.local/guide-doc': {
+    title: '往年保研经验资料包',
+    isOfficial: false,
+    hasFakeForm: false,
+  },
+  'game-simulated-link.local/group-confirm': {
+    title: '保研确认通道 - 群公告入口',
+    isOfficial: false,
+    hasFakeForm: true,
+    countdown: 1800,
+  },
   'game-simulated-link.local/fake-confirm': {
     title: '推免录取确认系统（非官方）',
     isOfficial: false,
@@ -21,6 +37,18 @@ const FAKE_PAGES: Record<string, { title: string; isOfficial: boolean; hasFakeFo
     hasFakeForm: true,
     countdown: 1800,
   },
+  'game-simulated-link.local/verify': {
+    title: '身份核验确认页面（非官方）',
+    isOfficial: false,
+    hasFakeForm: true,
+    countdown: 86400,
+  },
+  'game-simulated-link.local/sms-confirm': {
+    title: '短信录取确认页面（非官方）',
+    isOfficial: false,
+    hasFakeForm: true,
+    countdown: 1800,
+  },
 };
 
 const DEFAULT_PAGE = {
@@ -30,12 +58,19 @@ const DEFAULT_PAGE = {
 };
 
 export default function BrowserView() {
-  const { gameState, setActiveView } = useGameStore();
+  const { gameState, setActiveView, openBrowserUrl } = useGameStore();
   const [urlInput, setUrlInput] = useState('');
 
   const browserState = gameState?.browserState;
   const currentUrl = browserState?.url ?? '';
   const page = FAKE_PAGES[currentUrl] ?? DEFAULT_PAGE;
+  const displayedUrl = urlInput || currentUrl;
+
+  const visitUrl = () => {
+    if (!displayedUrl.trim()) return;
+    openBrowserUrl(displayedUrl);
+    setUrlInput('');
+  };
 
   return (
     <div className="flex flex-col flex-1 bg-[#07111F] overflow-hidden">
@@ -54,12 +89,26 @@ export default function BrowserView() {
               {page.isOfficial ? '🔒' : '⚠️'}
             </span>
             <input
-              value={urlInput || currentUrl}
+              value={displayedUrl}
               onChange={(e) => setUrlInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  visitUrl();
+                }
+              }}
               className="flex-1 bg-transparent text-xs text-[#94A3B8] focus:outline-none font-mono"
               placeholder="game-simulated-link.local/…"
             />
           </div>
+          <button
+            type="button"
+            onClick={visitUrl}
+            disabled={!displayedUrl.trim()}
+            className="rounded-lg bg-[#0E7490] px-2.5 py-1.5 text-xs text-white disabled:opacity-40"
+          >
+            访问
+          </button>
         </div>
         {/* Title bar */}
         <div className="px-4 pb-2 flex items-center gap-2">
@@ -91,7 +140,9 @@ export default function BrowserView() {
               <p className="text-xs text-[#64748B]">
                 {page.isOfficial
                   ? '欢迎使用Z大研究生院官方录取确认系统。请用学号和密码登录，确认录取信息无误。全程免费，无需向任何个人账号提交资金。'
-                  : '请在以下表单中填写您的基本信息以完成录取确认。系统将在确认后发送短信通知。'}
+                  : page.hasFakeForm
+                    ? '请在以下表单中填写您的基本信息以完成录取确认。系统将在确认后发送短信通知。'
+                    : '该页面来自非官方渠道，内容仅用于教育模拟。请优先通过官网、辅导员或官方电话核实。'}
               </p>
             </div>
 

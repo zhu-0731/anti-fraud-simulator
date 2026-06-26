@@ -12,7 +12,10 @@ const QUICK_SUGGESTIONS: string[] = [
   '麻烦你帮我确认一下',
 ];
 
-function ChatBubble({ msg }: { msg: ChatMessage }) {
+const SIMULATED_LINK_PATTERN = /(game-simulated-link\.local\/[A-Za-z0-9._~:/?#[\]@!$&'()*+,;=%-]+)/g;
+const SIMULATED_LINK_EXACT_PATTERN = /^game-simulated-link\.local\/[A-Za-z0-9._~:/?#[\]@!$&'()*+,;=%-]+$/;
+
+function ChatBubble({ msg, onOpenLink }: { msg: ChatMessage; onOpenLink: (url: string) => void }) {
   const isPlayer = msg.sender === 'player';
   const isSystem = msg.sender === 'system';
 
@@ -52,11 +55,15 @@ function ChatBubble({ msg }: { msg: ChatMessage }) {
           }`}
         >
           {msg.metadata?.simulatedLink && (
-            <div className="mb-1.5 text-[10px] text-[#38BDF8] opacity-70 font-mono">
+            <button
+              type="button"
+              onClick={() => onOpenLink(msg.metadata?.simulatedLink ?? '')}
+              className="mb-1.5 block max-w-full truncate text-left text-[10px] text-[#38BDF8] font-mono underline decoration-[#38BDF8]/40 underline-offset-2"
+            >
               🔗 {msg.metadata.simulatedLink}
-            </div>
+            </button>
           )}
-          <span style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</span>
+          <MessageContent content={msg.content} onOpenLink={onOpenLink} />
         </div>
         <span className="text-[9px] text-[#334155] px-1">
           {new Date(msg.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
@@ -66,8 +73,37 @@ function ChatBubble({ msg }: { msg: ChatMessage }) {
   );
 }
 
+function MessageContent({
+  content,
+  onOpenLink,
+}: {
+  content: string;
+  onOpenLink: (url: string) => void;
+}) {
+  const parts = content.split(SIMULATED_LINK_PATTERN);
+
+  return (
+    <span style={{ whiteSpace: 'pre-wrap' }}>
+      {parts.map((part, index) =>
+        SIMULATED_LINK_EXACT_PATTERN.test(part) ? (
+          <button
+            key={`${part}-${index}`}
+            type="button"
+            onClick={() => onOpenLink(part)}
+            className="inline max-w-full break-all text-left font-mono text-[#38BDF8] underline decoration-[#38BDF8]/40 underline-offset-2"
+          >
+            {part}
+          </button>
+        ) : (
+          <span key={`${part}-${index}`}>{part}</span>
+        ),
+      )}
+    </span>
+  );
+}
+
 export default function ChatWindow() {
-  const { gameState, sendMessage, openContact, isChatLoading } = useGameStore();
+  const { gameState, sendMessage, openContact, openBrowserUrl, isChatLoading } = useGameStore();
   const [inputText, setInputText] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -123,7 +159,7 @@ export default function ChatWindow() {
       {/* Messages */}
       <div className="min-h-0 flex-1 overflow-y-auto py-3">
         {messages.map((msg) => (
-          <ChatBubble key={msg.id} msg={msg} />
+          <ChatBubble key={msg.id} msg={msg} onOpenLink={openBrowserUrl} />
         ))}
         {isChatLoading && (
           <div className="flex gap-2 px-4 mb-3">

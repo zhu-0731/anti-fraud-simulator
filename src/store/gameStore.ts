@@ -31,6 +31,7 @@ interface GameStore {
   sendMessage(contactId: string, text: string): Promise<void>;
   openContact(contactId: string): Promise<void>;
   setActiveView(view: ActiveView): void;
+  openBrowserUrl(url: string): void;
   narrativeTick(contactId?: string): Promise<void>;
 
   // Derived helpers
@@ -171,6 +172,28 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setActiveView(view: ActiveView) {
     set((s) => ({
       gameState: s.gameState ? { ...s.gameState, activeView: view } : null,
+    }));
+  },
+
+  openBrowserUrl(url: string) {
+    const normalizedUrl = url.trim().replace(/^https?:\/\//, '');
+    if (!normalizedUrl) return;
+
+    set((s) => ({
+      gameState: s.gameState
+        ? {
+            ...s.gameState,
+            activeView: 'browser',
+            browserState: {
+              url: normalizedUrl,
+              title: normalizedUrl,
+              hasCountdown: false,
+              countdownSeconds: 0,
+              hasForm: false,
+              isLoading: false,
+            },
+          }
+        : null,
     }));
   },
 
