@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import type { AIEventProvider } from './AIEventProvider';
 import type { AIEventGenerationInput, AIEventOutput } from '@/domain/types/ai';
 import type { EventCard } from '@/domain/types/game';
@@ -36,7 +37,10 @@ export class OpenAICompatibleEventProvider implements AIEventProvider {
       process.env.OPENAI_MODEL ??
       'gpt-4.1-mini';
 
-    const res = await fetch(`${baseUrl}/chat/completions`, {
+    const url = new URL(`${baseUrl}/chat/completions`);
+    url.searchParams.set('request_id', randomUUID());
+
+    const res = await fetch(url, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -105,6 +109,10 @@ function getApiKey(): string | null {
       .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean)
+      .map((line) => {
+        const equalIndex = line.indexOf('=');
+        return equalIndex >= 0 ? line.slice(equalIndex + 1).trim() : line;
+      })
       .sort((a, b) => b.length - a.length)[0];
     if (key) return key;
   }

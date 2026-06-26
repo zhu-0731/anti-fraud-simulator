@@ -97,10 +97,20 @@ OPENAI_COMPATIBLE_MODEL=gpt-4.1-mini
 OPENAI_COMPATIBLE_API_KEY=your_key_here
 ```
 
+vivo 蓝心大模型配置示例：
+
+```env
+AI_PROVIDER=openai-compatible
+OPENAI_COMPATIBLE_BASE_URL=https://api-ai.vivo.com.cn/v1
+OPENAI_COMPATIBLE_MODEL=Doubao-Seed-2.0-mini
+OPENAI_COMPATIBLE_API_KEY=your_AppKey
+```
+
 说明：
 - `OPENAI_COMPATIBLE_API_KEY` 优先，其次读取 `OPENAI_API_KEY`。
 - 本地开发时，如果环境变量不存在，会尝试读取项目外层的 `../api_key.txt`，只作为本地便利方案。
 - `OPENAI_COMPATIBLE_BASE_URL` 可以替换为其他支持 OpenAI Chat Completions 风格的服务地址。
+- 请求会自动附带 `request_id` 查询参数，兼容 vivo 文档要求。
 - 生成结果必须解析为 `EventCard` JSON，并继续经过 `SafetyFilterService` 过滤。
 
 ### Mock provider
