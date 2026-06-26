@@ -1,6 +1,7 @@
 import type { EventCard } from '@/domain/types/game';
+import { applyEventCompatibilityMetadata } from '@/domain/tactics/EventCompatibility';
 
-export const chapter01Events: EventCard[] = [
+const rawChapter01Events: EventCard[] = [
   {
     id: 'E01',
     title: '辅导员提醒',
@@ -762,3 +763,7 @@ export const chapter01Events: EventCard[] = [
     teachingPoint: '每次模拟结束后的复盘，能帮助你在真实情况中做出更正确的判断。',
   },
 ];
+
+export const chapter01Events: EventCard[] = rawChapter01Events.map((event) =>
+  applyEventCompatibilityMetadata(event, { source: 'static', difficulty: 'beginner', schemaVersion: 1 }),
+);

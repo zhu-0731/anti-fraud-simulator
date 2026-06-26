@@ -21,3 +21,10 @@
 | 统一启动 API | 基础完成 | 已新增 `POST /api/game/start`，旧 `/api/session/start` 保持兼容 |
 | 防守/红队状态隔离 | 基础完成 | 防守仓储写入时校验不得包含 `redTeamState`，红队只返回未启用契约 |
 | 红队模式完整玩法 | 未完成 | 本阶段明确不实现，仅保留 `FEATURE_NOT_READY` 合同 |
+| 八个核心技能 | 基础完成 | 已由 `TacticRegistry` 统一管理 |
+| 技能风险信号和防御方法 | 基础完成 | 每个 `TacticCard` 均含 `observableSignals` 和 `defenderCounters` |
+| 技能成本和冷却 | 基础完成 | 已有 `validateTacticSelection()` 和单元测试 |
+| 角色卡 | 基础完成 | 已新增 `RoleRegistry` |
+| 渠道卡 | 基础完成 | 已新增 `ChannelRegistry` |
+| 旧事件兼容元数据 | 基础完成 | `EventCard` 支持可选元数据，现有事件导出时自动补全 |
+| TacticUse 运行时记录 | 未完成 | 类型已定义，阶段 4/9 接入运行时和 Episode |
