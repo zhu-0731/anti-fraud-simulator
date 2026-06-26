@@ -6,6 +6,7 @@ import ScoreCard from '@/components/report/ScoreCard';
 import TimelineReview from '@/components/report/TimelineReview';
 import MistakeList from '@/components/report/MistakeList';
 import AdvicePanel from '@/components/report/AdvicePanel';
+import EpisodeReview from '@/components/report/EpisodeReview';
 
 export default function ReportScreen() {
   const { report, loadReport, isLoading, resetGame, gameState } = useGameStore();
@@ -46,6 +47,9 @@ export default function ReportScreen() {
 
       {/* Timeline */}
       <TimelineReview timeline={report.timeline} />
+
+      {/* Episode review */}
+      <EpisodeReview report={report} />
 
       {/* Advice */}
       <AdvicePanel advice={report.realWorldAdvice} teachingPoints={report.teachingPoints} />

@@ -56,6 +56,8 @@ test('enters emergency handling after simulated information disclosure', async (
   await expect(page.getByRole('button', { name: '拨打110或咨询96110（反诈热线）' })).toBeVisible();
   await page.getByRole('button', { name: /查看复盘报告/ }).click();
   await expect(page.getByRole('heading', { name: '复盘报告' })).toBeVisible();
+  await expect(page.getByText('AI 技能与核实复盘')).toBeVisible();
+  await expect(page.getByText('证据追踪')).toBeVisible();
 });
 
 test('completes a safe verification path through official channels', async ({ page }) => {
@@ -66,5 +68,7 @@ test('completes a safe verification path through official channels', async ({ pa
   await page.getByRole('button', { name: /完成核实并查看复盘/ }).click();
 
   await expect(page.getByRole('heading', { name: '复盘报告' })).toBeVisible();
+  await expect(page.getByText('AI 技能与核实复盘')).toBeVisible();
+  await expect(page.getByText('证据追踪')).toBeVisible();
   await expect(page.getByText('个人信息可能已泄露')).toHaveCount(0);
 });

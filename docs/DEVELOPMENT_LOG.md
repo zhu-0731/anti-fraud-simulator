@@ -414,3 +414,36 @@
 
 - 报告仍主要基于旧 `GameReport` 结构，逐轮 Episode 记录和 Agent 技能解释留到阶段 9。
 - SupportAgent/RiskActorAgent 尚未替换现有 UI 聊天 AgentRegistry。
+
+## 阶段 9：报告与 Episode 记录
+
+- 读取时间：2026-06-27
+- 分支：`feat/defender-reporting`
+- 设计文档路径：`docs/智能体设计.md`
+- 设计文档哈希：`9f0d91a8f95060c5f1f892119b46b9a91330332b`
+- 本阶段对应章节：`docs/项目一阶段执行文档.md` 阶段 9；`docs/智能体设计.md` 第 12、27、28、40、41 节
+- 本阶段不实现的章节：数据库持久化、LLM ReportAgent、完整红队玩法、策略进化
+
+### 完成内容
+
+- 新增 `Episode`、`EpisodeTurn`、`AgentStep` 类型，`TacticUse` 继续复用阶段 3/4 定义。
+- 新增 `TurnLogRepository` 持久化接口和内存实现。
+- 新增 `ReportBuilder`，从已记录聊天消息、事件行动、`TacticUse` 和状态字段生成 Episode 与解释，不调用模型推断玩家行为。
+- `ReportService` 保持由 `ScoringService`/`EndingService` 决定分数和结局，报告构建器只追加解释和证据。
+- `GameReport` 新增 AI 技能摘要、首次官方核实 turnId、矛盾识别、信息泄露总结、应急评价和 Episode。
+- `ReportScreen` 新增“AI 技能与核实复盘”，展示技能解释、证据追踪、首次核实、泄露与应急状态。
+
+### 验证记录
+
+| 命令 | 结果 | 备注 |
+|---|---|---|
+| `npm run test -- tests/integration/reporting.test.ts tests/integration/defender-runtime.test.ts` | PASS | 2 files, 5 tests |
+| `npm run build` | PASS | Next.js 16.2.6 production build |
+| `npm run lint` | PASS | ESLint 通过 |
+| `AI_ENABLED=false AI_PROVIDER=mock npm run test:e2e -- tests/e2e/defender-smoke.spec.ts` | PASS | desktop-chromium 和 mobile-375 共 6 tests |
+| `AI_ENABLED=false AI_PROVIDER=mock npm run verify` | PASS | lint；18 files, 66 tests；Next.js build；desktop/mobile E2E 共 6 tests |
+
+### 未完成
+
+- Episode 当前为内存持久化，数据库接口迁移留到后续数据库/知识库阶段。
+- 报告文本为规则构建，未接入 LLM ReportAgent；若未来接入，仍不得让模型决定分数或凭空补玩家行为。

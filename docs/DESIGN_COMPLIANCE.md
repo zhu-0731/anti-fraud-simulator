@@ -65,3 +65,10 @@
 | 风险路径完整完成 | 基础完成 | 信息泄露后进入应急页，可查看复盘报告 |
 | 电话通话结果稳定显示 | 基础完成 | 电话后台核实不再自动跳转报告页 |
 | 信息递进跨轮累计 | 基础完成 | `NarrativeDirector` 合并并累计 intent/contact 数值增量 |
+| Episode | 基础完成 | 已新增 `Episode` 类型并由报告阶段生成 |
+| EpisodeTurn | 基础完成 | 聊天消息和旧事件行动均可映射为 turn |
+| AgentStep | 基础完成 | 报告中记录规则引擎/报告构建步骤和输入输出引用 |
+| TurnLogRepository | 基础完成 | 已定义持久化接口和内存实现 |
+| 报告证据可追溯 | 基础完成 | EpisodeTurn 包含 `messageId` / `actionId` / `turnId` |
+| ReportAgent 不决定分数 | 基础完成 | 分数仍由 `ScoringService` 计算，`ReportBuilder` 只追加解释 |
+| 报告失败回退 | 部分完成 | 当前 `ReportBuilder` 为规则路径；尚未接入会失败的 AI ReportAgent |

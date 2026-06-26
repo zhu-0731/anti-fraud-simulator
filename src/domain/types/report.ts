@@ -1,5 +1,6 @@
 import type { EndingType, ActionRecord, Evidence } from './game';
 import type { DelayedConsequence } from './chat';
+import type { Episode } from './episode';
 
 export interface ScoreBreakdown {
   riskIdentification: number;
@@ -59,4 +60,13 @@ export interface GameReport {
   trustChainAnalysis: TrustChainAnalysis;
   pressureChainSummary: string;
   recoveryEvaluation: string;
+  episode?: Episode;
+  aiTacticSummary: string[];
+  firstOfficialVerificationTurnId?: string;
+  contradictionSummary: {
+    discovered: string[];
+    missed: string[];
+  };
+  informationLeakSummary: string;
+  emergencyEvaluation: string;
 }
