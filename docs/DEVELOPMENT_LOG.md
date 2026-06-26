@@ -354,3 +354,32 @@
 
 - RiskActorAgent 尚未接入聊天 UI。
 - 多轮核实拖延、渠道切换和信息递进的完整运行时路径留到后续交互阶段。
+
+## 阶段 7b：SupportAgent
+
+- 读取时间：2026-06-27
+- 分支：`feat/support-agents`
+- 设计文档路径：`docs/智能体设计.md`
+- 设计文档哈希：`9f0d91a8f95060c5f1f892119b46b9a91330332b`
+- 本阶段对应章节：`docs/项目一阶段执行文档.md` 阶段 7：SupportAgent；`docs/智能体设计.md` 第 2、11、12、27、28、40、41 节
+- 本阶段不实现的章节：正式防守交互整合、完整红队玩法、持久化和持续进化
+
+### 完成内容
+
+- 新增 `SupportAgentInput` / `SupportAgentOutput` / `ISupportAgent`。
+- 新增统一 `SupportAgent`，覆盖家人、同伴、群聊、辅导员、官方服务、反诈咨询。
+- 家人和同伴可提供不完整但会建议核实的信息。
+- 辅导员、官方和反诈角色标记为 authoritative，并只给安全/应急建议。
+- 测试确认支持角色不输出真实 URL，官方引导只使用模拟域名。
+
+### 验证记录
+
+| 命令 | 结果 | 备注 |
+|---|---|---|
+| `npm run test` | PASS | 17 files, 63 tests |
+| `npm run build` | PASS | Next.js 16.2.6 production build |
+
+### 未完成
+
+- SupportAgent 尚未替换现有聊天 UI AgentRegistry。
+- SupportAgent 仍为规则模板实现，Gateway 接入留给后续阶段。

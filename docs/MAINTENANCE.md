@@ -66,6 +66,8 @@ coverage/
 | domain/agents/director/DirectorAgent.ts | ✅ | Director 包装器，主 Agent 失败时规则回退 |
 | domain/types/riskActor.ts | ✅ | RiskActor 输入/输出契约 |
 | domain/agents/risk/RiskActorAgent.ts | ✅ | 受控风险角色模板，只使用授权技能 |
+| domain/types/supportAgent.ts | ✅ | SupportAgent 输入/输出契约 |
+| domain/agents/support/SupportAgent.ts | ✅ | 六类支持角色规则模板 |
 | domain/chat/IntentParser.ts | ✅ | 14意图，关键词匹配，接口预留LLM替换 |
 | domain/chat/ChatService.ts | ✅ | 意图→Agent→安全过滤→叙事→状态更新 |
 | domain/narrative/WorldState.ts | ✅ | createInitialWorldState + patchWorldState |
@@ -244,6 +246,13 @@ docs/
 - `RiskActorAgent` 接收 DirectorPlan，不自行选择技能。
 - 角色和渠道必须允许对应技能，否则不会生成该技能的 `TacticUse`。
 - 当前实现是教育模拟模板，后续可替换为 Gateway 结构化输出。
+
+### SupportAgent
+
+- `SupportAgent` 覆盖家人、同伴、群聊、辅导员、官方服务和反诈咨询。
+- 家人/同伴/群聊可以不完整，但必须引导核实。
+- 辅导员/官方/反诈为 authoritative，不能给风险操作。
+- 当前实现是规则模板，尚未替换旧 `AgentRegistry` 中的 UI 聊天 Agent。
 
 ### 评分体系
 - 风险识别 35分：每个risky行动 -7分，safe/verify行动 +3分（上限+10）
