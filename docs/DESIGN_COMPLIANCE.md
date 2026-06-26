@@ -72,3 +72,12 @@
 | 报告证据可追溯 | 基础完成 | EpisodeTurn 包含 `messageId` / `actionId` / `turnId` |
 | ReportAgent 不决定分数 | 基础完成 | 分数仍由 `ScoringService` 计算，`ReportBuilder` 只追加解释 |
 | 报告失败回退 | 部分完成 | 当前 `ReportBuilder` 为规则路径；尚未接入会失败的 AI ReportAgent |
+| VictimAgent 契约 | 基础完成 | 已新增 `VictimAgentInput` / `VictimAgentOutput` |
+| JudgeAgent 契约 | 基础完成 | 已新增 `JudgeAgentInput` / `JudgeAgentOutput` |
+| Victim 输入盲测 | 基础完成 | 契约测试确认不包含 `selectedTactics` 或技能标签 |
+| Judge/Victim 输入分离 | 基础完成 | Judge 接收证据 turns 和候选 TacticUse，Victim 只接收可见消息 |
+| RedTeamTurnRequest | 基础完成 | 已新增红队 turn 请求契约 |
+| BlindSpotHypothesis | 基础完成 | 已新增盲点假设契约 |
+| RedTeamGameService | 基础完成 | 返回 `not_ready`，不实现完整红队玩法 |
+| AI Gateway Victim/Judge task | 基础完成 | `AIProviderRequest` 支持 `victim_response` / `judge_evaluation` 任务类型 |
+| 红队状态隔离 | 基础完成 | 契约测试确认 redTeamState 不含 defender/world 状态 |

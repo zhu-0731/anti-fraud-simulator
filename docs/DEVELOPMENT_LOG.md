@@ -447,3 +447,34 @@
 
 - Episode 当前为内存持久化，数据库接口迁移留到后续数据库/知识库阶段。
 - 报告文本为规则构建，未接入 LLM ReportAgent；若未来接入，仍不得让模型决定分数或凭空补玩家行为。
+
+## 阶段 10：红队准备度
+
+- 读取时间：2026-06-27
+- 分支：`feat/red-team-contracts`
+- 设计文档路径：`docs/智能体设计.md`
+- 设计文档哈希：`9f0d91a8f95060c5f1f892119b46b9a91330332b`
+- 本阶段对应章节：`docs/项目一阶段执行文档.md` 阶段 10；`docs/智能体设计.md` 第 18、19、23、28、29、31、38、40、41 节
+- 本阶段不实现的章节：完整红队游戏、VictimAgent/JudgeAgent 实际模型调用、红队评分、数据库持久化、策略进化
+
+### 完成内容
+
+- 新增红队契约类型：`VictimAgentInput`、`VictimAgentOutput`、`JudgeAgentInput`、`JudgeAgentOutput`、`RedTeamTurnRequest`、`BlindSpotHypothesis`。
+- 新增 `RedTeamGameService` 未启用服务，允许提交红队 turn 请求但返回 `not_ready`。
+- `AIProviderRequest` task 扩展为 `generate_event`、`victim_response`、`judge_evaluation`，为未来 Victim/Judge 共用 Gateway 预留类型通道。
+- 契约测试确认 Victim 输入不包含玩家选中技能标签，Judge 输入与 Victim 输入分离。
+- 契约测试确认红队状态不包含防守状态，Tactic/Role/Channel registry 均可被红队复用。
+- 契约测试确认 `EpisodeTurn.mode` 支持 `red_team`，`DefenseRule` 可独立复用。
+
+### 验证记录
+
+| 命令 | 结果 | 备注 |
+|---|---|---|
+| `npm run test -- tests/unit/red-team-contracts.test.ts tests/unit/game-modes.test.ts tests/unit/role-channel-registry.test.ts` | PASS | 3 files, 13 tests |
+| `npm run build` | PASS | Next.js 16.2.6 production build |
+| `AI_ENABLED=false AI_PROVIDER=mock npm run verify` | PASS | lint；19 files, 73 tests；Next.js build；desktop/mobile E2E 共 6 tests |
+
+### 未完成
+
+- 红队模式仍返回未启用状态，不实现完整玩法。
+- Victim/Judge 仅完成类型契约，未接入 Gateway 实际调用。

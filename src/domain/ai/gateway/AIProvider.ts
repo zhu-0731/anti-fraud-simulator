@@ -1,9 +1,18 @@
 import type { AIEventGenerationInput } from '@/domain/types/ai';
+import type { JudgeAgentInput, VictimAgentInput } from '@/domain/types/redTeam';
 
-export interface AIProviderRequest {
+export type AITask = 'generate_event' | 'victim_response' | 'judge_evaluation';
+
+export type AIProviderInputByTask = {
+  generate_event: AIEventGenerationInput;
+  victim_response: VictimAgentInput;
+  judge_evaluation: JudgeAgentInput;
+};
+
+export interface AIProviderRequest<TTask extends AITask = 'generate_event'> {
   requestId: string;
-  task: 'generate_event';
-  input: AIEventGenerationInput;
+  task: TTask;
+  input: AIProviderInputByTask[TTask];
   signal: AbortSignal;
 }
 
