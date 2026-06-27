@@ -514,3 +514,15 @@
 - 根因：env 读取使用 `??`，当 `.env.local` 中存在空的 `OPENAI_API_KEY=` 时，会阻断后续 `VIVO_APP_KEY`，导致 `shouldUseAIChat()` 判断为无 key 并直接走规则模板。
 - 修复：OpenAI/vivo Provider 和 AIChatAgent 的 key/base/model 读取改为跳过空值。
 - 验证：真实项目 `/api/chat/send` 链路耗时约 3 秒并返回非模板 AI 回复；mock 回退全量 `verify` 通过。
+
+## 报告页滚动修复
+
+- 读取时间：2026-06-27
+- 分支：`fix/report-scroll`
+- 根因：`ReportScreen` 使用 `min-h-[100svh]`，但外层 `MobileFrame` 是固定 `h-[100svh] overflow-hidden`，报告内容超出时被父容器裁掉。
+- 修复：`ReportScreen` 改为 `h-full min-h-0 overflow-y-auto` 的内部滚动容器，加载态也改为使用父容器高度。
+- 验证：
+  - `npm run build` PASS
+  - `AI_ENABLED=false AI_PROVIDER=mock npm run test:e2e -- tests/e2e/defender-smoke.spec.ts` PASS，桌面/移动共 6 tests
+  - `npm run lint` PASS
+  - `npm run test -- tests/unit/ai-chat-agent.test.ts tests/integration/reporting.test.ts` PASS
