@@ -19,7 +19,7 @@ export default function ReportScreen() {
 
   if (isLoading || !report) {
     return (
-      <div className="flex items-center justify-center min-h-[100svh] bg-[#07111F]">
+      <div className="flex h-full min-h-0 items-center justify-center bg-[#07111F]">
         <div className="text-center space-y-3">
           <div className="w-10 h-10 border-2 border-[#0E7490] border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-sm text-[#94A3B8]">正在生成复盘报告…</p>
@@ -29,7 +29,7 @@ export default function ReportScreen() {
   }
 
   return (
-    <div className="flex flex-col min-h-[100svh] bg-[#07111F]">
+    <div className="flex h-full min-h-0 flex-col overflow-y-auto bg-[#07111F]">
       {/* Header */}
       <div className="px-6 pt-10 pb-5">
         <p className="text-xs text-[#0F766E] font-semibold tracking-widest mb-1">模拟结束</p>

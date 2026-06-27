@@ -71,4 +71,6 @@ test('completes a safe verification path through official channels', async ({ pa
   await expect(page.getByText('AI 技能与核实复盘')).toBeVisible();
   await expect(page.getByText('证据追踪')).toBeVisible();
   await expect(page.getByText('个人信息可能已泄露')).toHaveCount(0);
+  await page.getByRole('button', { name: '重新开始' }).scrollIntoViewIfNeeded();
+  await expect(page.getByRole('button', { name: '重新开始' })).toBeVisible();
 });
