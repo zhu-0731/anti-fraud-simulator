@@ -6,6 +6,7 @@ import { GroupAgent } from './GroupAgent';
 import { FakeAdmissionAgent } from './FakeAdmissionAgent';
 import { OfficialSiteAgent } from './OfficialSiteAgent';
 import { AntiFraudAgent } from './AntiFraudAgent';
+import { AIChatAgent, shouldUseAIChat } from '@/domain/ai/chat/AIChatAgent';
 
 // Export instances for direct use
 export const momAgent = new MomAgent();
@@ -26,10 +27,15 @@ const registry: Record<string, IBaseAgent> = {
   anti_fraud: antiFraudAgent,
 };
 
+const aiRegistry: Record<string, IBaseAgent> = Object.fromEntries(
+  Object.entries(registry).map(([contactId, agent]) => [contactId, new AIChatAgent(agent)]),
+);
+
 export function getAgent(contactId: string): IBaseAgent | null {
-  return registry[contactId] ?? null;
+  const source = shouldUseAIChat() ? aiRegistry : registry;
+  return source[contactId] ?? null;
 }
 
 export function getAllAgents(): IBaseAgent[] {
-  return Object.values(registry);
+  return Object.values(shouldUseAIChat() ? aiRegistry : registry);
 }

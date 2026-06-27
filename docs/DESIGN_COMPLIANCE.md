@@ -81,3 +81,6 @@
 | RedTeamGameService | 基础完成 | 返回 `not_ready`，不实现完整红队玩法 |
 | AI Gateway Victim/Judge task | 基础完成 | `AIProviderRequest` 支持 `victim_response` / `judge_evaluation` 任务类型 |
 | 红队状态隔离 | 基础完成 | 契约测试确认 redTeamState 不含 defender/world 状态 |
+| AI 聊天文本接入 | 基础完成 | `AIChatAgent` 包装现有规则 Agent，启用时生成可见聊天文本 |
+| AI 聊天规则回退 | 基础完成 | AI 关闭、mock、缺 key、非法输出或 provider 失败时回退规则 Agent |
+| AI 不修改 GameState | 基础完成 | AIChatAgent 只替换 `messages`，状态推进和评分仍由规则服务控制 |
