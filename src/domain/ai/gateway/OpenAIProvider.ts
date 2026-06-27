@@ -26,16 +26,18 @@ export class OpenAIProvider implements AIProvider {
       throw new AIError('MISSING_API_KEY', 'Missing OpenAI-compatible API key.');
     }
 
-    const baseUrl = normalizeBaseUrl(
-      process.env.OPENAI_COMPATIBLE_BASE_URL ??
-        process.env.OPENAI_BASE_URL ??
-        'https://api.openai.com/v1',
-    );
+    const baseUrl = normalizeBaseUrl(firstNonEmpty(
+      process.env.OPENAI_COMPATIBLE_BASE_URL,
+      process.env.OPENAI_BASE_URL,
+      'https://api.openai.com/v1',
+    ));
     const model =
-      process.env.OPENAI_COMPATIBLE_MODEL ??
-      process.env.OPENAI_MODEL ??
-      process.env.AI_MODEL_FAST ??
-      'gpt-4.1-mini';
+      firstNonEmpty(
+        process.env.OPENAI_COMPATIBLE_MODEL,
+        process.env.OPENAI_MODEL,
+        process.env.AI_MODEL_FAST,
+        'gpt-4.1-mini',
+      );
 
     const requestId = request.requestId || randomUUID();
     const url = new URL(`${baseUrl}/chat/completions`);
@@ -113,11 +115,19 @@ function normalizeBaseUrl(url: string): string {
 }
 
 function getApiKey(): string | null {
-  const key =
-    process.env.OPENAI_COMPATIBLE_API_KEY ??
-    process.env.OPENAI_API_KEY ??
-    process.env.VIVO_APP_KEY;
-  return key?.trim() ? key.trim() : null;
+  return firstNonEmpty(
+    process.env.OPENAI_COMPATIBLE_API_KEY,
+    process.env.OPENAI_API_KEY,
+    process.env.VIVO_APP_KEY,
+  ) || null;
+}
+
+function firstNonEmpty(...values: Array<string | undefined>): string {
+  for (const value of values) {
+    const trimmed = value?.trim();
+    if (trimmed) return trimmed;
+  }
+  return '';
 }
 
 export const openAIProvider = new OpenAIProvider();

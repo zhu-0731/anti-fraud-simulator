@@ -48,6 +48,8 @@ export interface ChatMessage {
     isSystemGenerated?: boolean;
     revealAtReport?: boolean;
     hiddenConsequenceId?: string;
+    aiGenerated?: boolean;
+    aiProvider?: string;
   };
 }
 

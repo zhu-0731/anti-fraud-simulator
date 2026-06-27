@@ -72,6 +72,11 @@ export class AIChatAgent implements IBaseAgent {
           senderName: this.displayName,
           content: safetyFilterService.removeRealLinks(message.content),
           channel: resolveChannel(this.contactId, fallback.messages[0]?.channel),
+          metadata: {
+            ...fallback.messages[0]?.metadata,
+            aiGenerated: true,
+            aiProvider: process.env.AI_PROVIDER ?? 'openai-compatible',
+          },
         })),
       };
     } catch {
@@ -173,10 +178,10 @@ function buildUserPrompt(input: AIChatGenerationInput): string {
 }
 
 function buildChatCompletionsUrl(): string {
-  const baseUrl = (
-    process.env.OPENAI_COMPATIBLE_BASE_URL ??
-    process.env.OPENAI_BASE_URL ??
-    'https://api.openai.com/v1'
+  const baseUrl = firstNonEmpty(
+    process.env.OPENAI_COMPATIBLE_BASE_URL,
+    process.env.OPENAI_BASE_URL,
+    'https://api.openai.com/v1',
   ).replace(/\/+$/, '');
   const url = new URL(`${baseUrl}/chat/completions`);
   url.searchParams.set('request_id', randomUUID());
@@ -193,17 +198,28 @@ function buildHeaders(apiKey: string): Record<string, string> {
 }
 
 function getModel(): string {
-  return (
-    process.env.OPENAI_COMPATIBLE_MODEL ??
-    process.env.OPENAI_MODEL ??
-    process.env.AI_MODEL_FAST ??
-    'gpt-4.1-mini'
+  return firstNonEmpty(
+    process.env.OPENAI_COMPATIBLE_MODEL,
+    process.env.OPENAI_MODEL,
+    process.env.AI_MODEL_FAST,
+    'gpt-4.1-mini',
   );
 }
 
 function getApiKey(): string | null {
-  const key = process.env.OPENAI_COMPATIBLE_API_KEY ?? process.env.OPENAI_API_KEY ?? process.env.VIVO_APP_KEY;
-  return key?.trim() ? key.trim() : null;
+  return firstNonEmpty(
+    process.env.OPENAI_COMPATIBLE_API_KEY,
+    process.env.OPENAI_API_KEY,
+    process.env.VIVO_APP_KEY,
+  ) || null;
+}
+
+function firstNonEmpty(...values: Array<string | undefined>): string {
+  for (const value of values) {
+    const trimmed = value?.trim();
+    if (trimmed) return trimmed;
+  }
+  return '';
 }
 
 function extractJson(rawText: string): string {

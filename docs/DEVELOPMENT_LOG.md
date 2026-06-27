@@ -507,3 +507,10 @@
 
 - 未进行真实 vivo live 调用；本地验证仍使用 mock/注入 client，避免泄露或消耗真实 key。
 - Director/RiskActor/SupportAgent 的完整 AI 编排仍未替换规则状态机。
+
+### 修正记录
+
+- 2026-06-27：修复 AI 聊天未实际接入的问题。
+- 根因：env 读取使用 `??`，当 `.env.local` 中存在空的 `OPENAI_API_KEY=` 时，会阻断后续 `VIVO_APP_KEY`，导致 `shouldUseAIChat()` 判断为无 key 并直接走规则模板。
+- 修复：OpenAI/vivo Provider 和 AIChatAgent 的 key/base/model 读取改为跳过空值。
+- 验证：真实项目 `/api/chat/send` 链路耗时约 3 秒并返回非模板 AI 回复；mock 回退全量 `verify` 通过。
