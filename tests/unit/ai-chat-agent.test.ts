@@ -24,6 +24,8 @@ describe('AIChatAgent', () => {
     const response = await agent.generateResponse(input());
 
     expect(response.messages[0].content).toBe('你放心，我这边先帮你占着名额。');
+    expect(response.messages[0].metadata?.aiGenerated).toBe(true);
+    expect(response.messages[0].metadata?.aiProvider).toBe('vivo');
     expect(response.delayedConsequences).toBeUndefined();
   });
 
@@ -42,6 +44,40 @@ describe('AIChatAgent', () => {
 
   it('does not call AI when provider is mock', async () => {
     process.env.AI_PROVIDER = 'mock';
+    let called = false;
+    const agent = new AIChatAgent(new FakeAdmissionAgent(), {
+      async generate() {
+        called = true;
+        return { messages: [{ content: 'unused' }] };
+      },
+    });
+
+    const response = await agent.generateResponse(input());
+
+    expect(called).toBe(false);
+    expect(response.messages[0].content.length).toBeGreaterThan(0);
+  });
+
+  it('ignores empty OpenAI key and uses vivo key', async () => {
+    process.env.OPENAI_API_KEY = '';
+    let called = false;
+    const agent = new AIChatAgent(new FakeAdmissionAgent(), {
+      async generate() {
+        called = true;
+        return { messages: [{ content: 'vivo key path works' }] };
+      },
+    });
+
+    const response = await agent.generateResponse(input());
+
+    expect(called).toBe(true);
+    expect(response.messages[0].content).toBe('vivo key path works');
+  });
+
+  it('falls back when all key env vars are empty', async () => {
+    process.env.VIVO_APP_KEY = '';
+    process.env.OPENAI_COMPATIBLE_API_KEY = '';
+    process.env.OPENAI_API_KEY = '';
     let called = false;
     const agent = new AIChatAgent(new FakeAdmissionAgent(), {
       async generate() {
