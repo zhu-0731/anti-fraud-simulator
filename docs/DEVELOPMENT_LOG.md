@@ -478,3 +478,32 @@
 
 - 红队模式仍返回未启用状态，不实现完整玩法。
 - Victim/Judge 仅完成类型契约，未接入 Gateway 实际调用。
+
+## AI 聊天 Agent 启用
+
+- 读取时间：2026-06-27
+- 分支：`feat/ai-chat-agents`
+- 触发原因：规则模板回复重复，当前体验“不好玩”，需要把已有 vivo/OpenAI-compatible 配置用于实际聊天。
+- 安全边界：AI 只生成可见聊天文本，不直接修改 `GameState`、不决定分数、不生成报告事实、不暴露内部状态。
+
+### 完成内容
+
+- 新增 `AIChatAgent`，包装现有规则 Agent。
+- `AgentRegistry` 在 `AI_ENABLED=true`、`AI_PROVIDER` 非 `mock`、存在 key 且 `AI_CHAT_ENABLED` 不为 `false` 时返回 AI 包装 Agent。
+- AI 输出使用结构化 JSON 校验，只允许返回 `messages[].content`。
+- 非法输出、缺 key、provider 失败或 AI 关闭时回退规则 Agent。
+- AI 输出经过 `SafetyFilterService.removeRealLinks()`，真实链接会替换为模拟域名。
+- `.env.example` 新增 `AI_CHAT_ENABLED`、`AI_CHAT_TEMPERATURE`、`AI_CHAT_MAX_TOKENS`。
+
+### 验证记录
+
+| 命令 | 结果 | 备注 |
+|---|---|---|
+| `npm run test -- tests/unit/ai-chat-agent.test.ts tests/integration/defender-runtime.test.ts` | PASS | 2 files, 7 tests |
+| `npm run lint` | PASS | ESLint 通过 |
+| `AI_ENABLED=false AI_PROVIDER=mock npm run verify` | PASS | lint；20 files, 77 tests；Next.js build；desktop/mobile E2E 共 6 tests |
+
+### 未完成
+
+- 未进行真实 vivo live 调用；本地验证仍使用 mock/注入 client，避免泄露或消耗真实 key。
+- Director/RiskActor/SupportAgent 的完整 AI 编排仍未替换规则状态机。

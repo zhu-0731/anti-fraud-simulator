@@ -114,6 +114,8 @@
 | 自由文本输入 | ChatWindow文本框可输入，Enter发送 | ✅ |
 | 快捷建议按钮 | ChatWindow底部显示5条建议，点击填充 | ✅ |
 | Agent回复 | 各联系人根据玩家意图给出不同回复 | ✅ |
+| AI聊天增强 | `AI_ENABLED=true` 且 provider 非 mock 时，Agent 可由 AI 生成可见回复 | ✅ |
+| AI聊天回退 | AI 关闭、缺 key 或输出非法时自动回退规则 Agent | ✅ |
 | 未读徽标 | 联系人列表显示未读数，打开后清零 | ✅ |
 | BottomNavigation | 5个标签：消息/浏览器/官网/电话/证据 | ✅ |
 | BrowserView倒计时 | 访问fake-confirm页面显示倒计时 | ✅ |

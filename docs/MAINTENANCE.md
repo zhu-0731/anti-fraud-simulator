@@ -234,6 +234,14 @@ docs/
 - Gateway 不读取 `api_key.txt`，真实密钥只允许放本地 `.env.local`。
 - live 模型验收未执行；当前通过 Mock、非法输出、超时、限流和回退测试验证。
 
+### AI Chat Agents
+
+- `AIChatAgent` 位于 `src/domain/ai/chat/AIChatAgent.ts`，用于包装现有规则 Agent。
+- 启用条件：`AI_ENABLED=true`、`AI_PROVIDER` 不是 `mock`、存在 OpenAI-compatible/vivo key，且 `AI_CHAT_ENABLED` 不为 `false`。
+- AI 只替换可见聊天文本；`GameState`、分数、报告、`TacticUse` 和阶段流转仍由规则服务决定。
+- AI 输出必须是结构化 JSON，非法输出、缺 key、provider 失败或真实链接输出都会回退到规则 Agent。
+- 真实密钥只放 `.env.local`，不得写入日志、文档或提交。
+
 ### DirectorAgent
 
 - Director 只输出计划，不输出聊天文本。
